@@ -19,6 +19,8 @@ const JUMP_FORCE = -14;
 const MOVE_SPEED = 5;
 const CHARACTER_SIZE = 180;
 const GROUND_OFFSET = 90; // px from bottom
+// Camera: character sits at ~40% from left when scrolling
+const CAMERA_LEAD = 0.4;
 
 export function GameStage({ playerName, characterImageUrl, characterDescription }: GameStageProps) {
   const { toast } = useToast();
