@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { Sparkles, Star } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { useLanguage, Language } from "@/context/LanguageContext";
 
 interface WelcomeScreenProps {
   onStart: (name: string) => void;
 }
 
+const FLAG: Record<Language, string> = { en: "🇬🇧", nl: "🇧🇪" };
+const LANG_LABEL: Record<Language, string> = { en: "EN", nl: "NL" };
+const OTHER_LANG: Record<Language, Language> = { en: "nl", nl: "en" };
+
 export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
+  const { language, setLanguage, t } = useLanguage();
   const [name, setName] = useState("");
   const [shake, setShake] = useState(false);
 
@@ -17,6 +23,8 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
     }
     onStart(name.trim());
   };
+
+  const toggleLang = () => setLanguage(OTHER_LANG[language]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/40 via-background to-primary/10 flex items-center justify-center p-4 overflow-hidden relative">
@@ -37,6 +45,16 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         </div>
       ))}
 
+      {/* Language toggle — top right */}
+      <button
+        onClick={toggleLang}
+        title={t.langLabel}
+        className="fixed top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-card/80 backdrop-blur-md border border-border/50 shadow-md hover:bg-card transition-colors font-body text-sm font-semibold text-foreground"
+      >
+        <span className="text-base">{FLAG[OTHER_LANG[language]]}</span>
+        <span className="text-xs text-muted-foreground">{LANG_LABEL[OTHER_LANG[language]]}</span>
+      </button>
+
       <div className="relative z-10 w-full max-w-md text-center space-y-8">
         {/* Logo area */}
         <div className="space-y-3">
@@ -52,7 +70,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           </h1>
 
           <p className="font-body text-muted-foreground text-lg">
-            Bring your drawings to life! 🌟
+            {t.tagline}
           </p>
         </div>
 
@@ -60,10 +78,10 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         <div className="bg-card/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-border/50 space-y-5 animate-bounce-in">
           <div className="space-y-2">
             <label className="font-display text-2xl text-foreground block">
-              What's your name? 👋
+              {t.whatIsYourName}
             </label>
             <p className="font-body text-sm text-muted-foreground">
-              Your drawing will call you by name!
+              {t.nameWillCall}
             </p>
           </div>
 
@@ -72,7 +90,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleStart()}
-            placeholder="Type your name here..."
+            placeholder={t.namePlaceholder}
             maxLength={20}
             className={`
               w-full px-5 py-4 rounded-2xl border-2 bg-background
@@ -100,14 +118,14 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             "
           >
             <Sparkles className="w-6 h-6" />
-            Start Adventure!
+            {t.startAdventure}
             <Sparkles className="w-6 h-6" />
           </button>
         </div>
 
         {/* Decorative bottom hint */}
         <p className="font-body text-sm text-muted-foreground animate-wobble">
-          🖼️ Upload a drawing • 🌍 Explore 5 worlds • 💬 Chat with your character
+          {t.bottomHint}
         </p>
       </div>
     </div>
