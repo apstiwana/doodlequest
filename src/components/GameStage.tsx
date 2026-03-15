@@ -327,44 +327,55 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
       />
 
       {/* Character */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          left: physicsDisplay.x - CHARACTER_SIZE / 2,
-          top: physicsDisplay.y - CHARACTER_SIZE / 2,
-          width: CHARACTER_SIZE,
-          height: CHARACTER_SIZE,
-          transform: `
-            scaleX(${physicsDisplay.facingRight ? physicsDisplay.squashStretch : -physicsDisplay.squashStretch})
-            scaleY(${1 / Math.max(physicsDisplay.squashStretch, 0.5)})
-            rotate(${physicsDisplay.tilt}deg)
-          `,
-          transition: "transform 0.05s ease-out",
-          transformOrigin: "bottom center",
-        }}
-      >
-        {isThinking && (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex gap-1">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-2 h-2 rounded-full bg-primary animate-bounce"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
+      {(() => {
+        const isMoving = Math.abs(physicsDisplay.vx) > 0.5;
+        const isAirborne = !physicsDisplay.isOnGround;
+        const animClass = isAirborne
+          ? "animate-char-jump"
+          : isMoving
+          ? "animate-char-run"
+          : "animate-char-idle";
+
+        return (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left: physicsDisplay.x - CHARACTER_SIZE / 2,
+              top: physicsDisplay.y - CHARACTER_SIZE / 2,
+              width: CHARACTER_SIZE,
+              height: CHARACTER_SIZE,
+              transform: `
+                scaleX(${physicsDisplay.facingRight ? physicsDisplay.squashStretch : -physicsDisplay.squashStretch})
+                scaleY(${1 / Math.max(physicsDisplay.squashStretch, 0.5)})
+                rotate(${physicsDisplay.tilt}deg)
+              `,
+              transition: "transform 0.05s ease-out",
+              transformOrigin: "bottom center",
+            }}
+          >
+            {isThinking && (
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
+            )}
+            <img
+              src={characterImageUrl}
+              alt="Your character"
+              className={`w-full h-full object-contain ${animClass}`}
+              style={{
+                filter: "drop-shadow(3px 6px 8px rgba(0,0,0,0.35)) contrast(1.05) saturate(1.15)",
+              }}
+              draggable={false}
+            />
           </div>
-        )}
-        <img
-          src={characterImageUrl}
-          alt="Your character"
-          className="w-full h-full object-contain"
-          style={{
-            filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.3)) contrast(1.1) saturate(1.2)",
-            mixBlendMode: "multiply",
-          }}
-          draggable={false}
-        />
-      </div>
+        );
+      })()}
 
       {/* Ground shadow */}
       <div
