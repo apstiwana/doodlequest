@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Scene, SCENE_CONFIG, CharacterPhysics } from "@/types/game";
 import { SceneSelector } from "./SceneSelector";
 import { SpeechBubble } from "./SpeechBubble";
-import { SceneBackground } from "./SceneBackground";
+import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
