@@ -185,8 +185,8 @@ const SpaceBg = () => (
     </defs>
     <rect width="1200" height="700" fill="url(#deepspace)" />
     {/* Stars lots */}
-    {[...Array(150)].map((_,i) => (
-      <circle key={i} cx={Math.random()*1200} cy={Math.random()*580} r={Math.random()*3} fill="white" opacity={0.2+Math.random()*0.8} />
+    {SPACE_STAR_DATA.map((s,i) => (
+      <circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill="white" opacity={s.op} />
     ))}
     {/* Nebula */}
     <ellipse cx="300" cy="200" rx="200" ry="120" fill="#9B59B6" opacity="0.08" />
