@@ -59,7 +59,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
   useEffect(() => {
     const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
     physicsRef.current = {
-      x: window.innerWidth / 2,
+      x: window.innerWidth * CAMERA_LEAD,
       y: groundY,
       vx: 0, vy: 0,
       isOnGround: true, facingRight: true,
