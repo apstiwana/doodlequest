@@ -149,8 +149,8 @@ const MoonBg = () => (
     </defs>
     <rect width="1200" height="700" fill="url(#moonspace)" />
     {/* Stars */}
-    {[...Array(80)].map((_,i) => (
-      <circle key={i} cx={Math.random()*1200} cy={Math.random()*550} r={Math.random()*2.5} fill="white" opacity={0.3+Math.random()*0.7} />
+    {STAR_DATA.map((s,i) => (
+      <circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill="white" opacity={s.op} />
     ))}
     {/* Earth in sky */}
     <circle cx="980" cy="120" r="70" fill="#1E90FF" opacity="0.9" />
