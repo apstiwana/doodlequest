@@ -412,7 +412,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
         <div className="fixed bottom-28 right-4 z-30 animate-bounce-in">
           <div className="bg-card/90 backdrop-blur-md border border-border/50 rounded-3xl p-4 shadow-xl w-72">
             <p className="font-body text-sm text-muted-foreground mb-2">
-              💬 Talk to your character!
+              {t.talkToCharacter}
             </p>
             <div className="flex gap-2">
               <input
@@ -420,7 +420,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleChat()}
-                placeholder="Say something..."
+                placeholder={t.saySomething}
                 className="flex-1 px-3 py-2 rounded-2xl border border-border bg-background font-body text-sm focus:outline-none focus:border-primary"
                 maxLength={150}
               />
@@ -429,7 +429,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
                 disabled={!chatInput.trim()}
                 className="px-3 py-2 rounded-2xl bg-primary text-primary-foreground font-body text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
               >
-                Send
+                {t.send}
               </button>
             </div>
           </div>
