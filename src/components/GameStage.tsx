@@ -481,7 +481,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
 
       {/* Controls hint */}
       <div className="fixed bottom-4 left-4 z-10 font-body text-xs text-white/50 hidden md:block">
-        ← → Move • ↑ / Space Jump • T Chat
+        {t.controlsHint}
       </div>
     </div>
   );
