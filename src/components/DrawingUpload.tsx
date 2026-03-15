@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Upload, RefreshCw, Check } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface DrawingUploadProps {
   playerName: string;
@@ -8,6 +9,7 @@ interface DrawingUploadProps {
 }
 
 export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
+  const { t } = useLanguage();
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -17,11 +19,11 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
 
   const processImage = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file! 🖼️");
+      setError(t.errorNotImage);
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setError("Image is too big! Please use a smaller one. 📏");
+      setError(t.errorTooBig);
       return;
     }
 
@@ -54,8 +56,6 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
       setDescription(data.description || "a wonderful drawing");
     } catch (err) {
       console.error(err);
-      // Fallback: use the local file URL directly
-      const localUrl = URL.createObjectURL(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string;
@@ -87,10 +87,10 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
         <div className="text-center mb-8">
           <div className="text-6xl mb-3 animate-float inline-block">🎨</div>
           <h2 className="font-display text-4xl text-primary mb-2">
-            Upload Your Drawing!
+            {t.uploadTitle}
           </h2>
           <p className="font-body text-muted-foreground text-lg">
-            {playerName}, let's bring your creation to life! ✨
+            {t.uploadSubtitle(playerName)}
           </p>
         </div>
 
@@ -123,10 +123,10 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
               <div className="space-y-4">
                 <div className="text-6xl animate-spin inline-block">✨</div>
                 <p className="font-display text-2xl text-primary">
-                  Making your drawing magic!
+                  {t.makingMagic}
                 </p>
                 <p className="font-body text-muted-foreground">
-                  Just a moment... 🪄
+                  {t.justAMoment}
                 </p>
                 <div className="flex justify-center gap-2 mt-4">
                   {[0, 1, 2].map((i) => (
@@ -144,19 +144,19 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
                   🖼️
                 </div>
                 <p className="font-display text-2xl text-foreground">
-                  {isDragging ? "Drop it here! 🎯" : "Drop your drawing here!"}
+                  {isDragging ? t.dropActive : t.dropHere}
                 </p>
                 <p className="font-body text-muted-foreground">
-                  or click to choose a photo
+                  {t.orClickToChoose}
                 </p>
                 <div className="flex justify-center">
                   <div className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-full font-body font-semibold text-sm">
                     <Upload className="w-4 h-4" />
-                    Choose Photo
+                    {t.choosePhoto}
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Works best with drawings on white paper 📄
+                  {t.worksbestHint}
                 </p>
               </div>
             )}
@@ -166,7 +166,7 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
           <div className="bg-card rounded-3xl p-6 shadow-lg space-y-5 animate-bounce-in">
             <div className="flex items-center gap-2 text-teal font-body font-semibold">
               <Check className="w-5 h-5" />
-              Looking amazing, {playerName}!
+              {t.lookingAmazing(playerName)}
             </div>
 
             <div
@@ -193,14 +193,14 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
                 className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 border-border font-body font-semibold text-foreground hover:bg-muted transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
-                Try Again
+                {t.tryAgain}
               </button>
               <button
                 onClick={() => onComplete(previewUrl, description)}
                 className="flex-2 flex-grow flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-primary text-primary-foreground font-display text-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/30"
               >
                 <Sparkles className="w-5 h-5" />
-                Let's Go!
+                {t.letsGo}
               </button>
             </div>
           </div>

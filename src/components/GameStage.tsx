@@ -5,6 +5,7 @@ import { SpeechBubble } from "./SpeechBubble";
 import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface GameStageProps {
   playerName: string;
@@ -24,6 +25,7 @@ const CAMERA_LEAD = 0.4;
 
 export function GameStage({ playerName, characterImageUrl, characterDescription }: GameStageProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [scene, setScene] = useState<Scene>("forest");
   const [sceneTransition, setSceneTransition] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -410,7 +412,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
         <div className="fixed bottom-28 right-4 z-30 animate-bounce-in">
           <div className="bg-card/90 backdrop-blur-md border border-border/50 rounded-3xl p-4 shadow-xl w-72">
             <p className="font-body text-sm text-muted-foreground mb-2">
-              💬 Talk to your character!
+              {t.talkToCharacter}
             </p>
             <div className="flex gap-2">
               <input
@@ -418,7 +420,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleChat()}
-                placeholder="Say something..."
+                placeholder={t.saySomething}
                 className="flex-1 px-3 py-2 rounded-2xl border border-border bg-background font-body text-sm focus:outline-none focus:border-primary"
                 maxLength={150}
               />
@@ -427,7 +429,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
                 disabled={!chatInput.trim()}
                 className="px-3 py-2 rounded-2xl bg-primary text-primary-foreground font-body text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
               >
-                Send
+                {t.send}
               </button>
             </div>
           </div>
@@ -479,7 +481,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
 
       {/* Controls hint */}
       <div className="fixed bottom-4 left-4 z-10 font-body text-xs text-white/50 hidden md:block">
-        ← → Move • ↑ / Space Jump • T Chat
+        {t.controlsHint}
       </div>
     </div>
   );
