@@ -170,14 +170,14 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
             </div>
 
             <div
-              className="relative mx-auto w-48 h-48 rounded-2xl overflow-hidden shadow-inner bg-gradient-to-br from-muted to-background flex items-center justify-center"
-              style={{ backgroundImage: "radial-gradient(circle at 30% 30%, hsl(var(--accent)/0.3), transparent)" }}
+              className="relative mx-auto w-56 h-56 rounded-2xl overflow-hidden shadow-inner bg-gradient-to-br from-muted/40 to-background flex items-center justify-center"
+              style={{ backgroundImage: "radial-gradient(circle at 30% 30%, hsl(var(--accent)/0.25), transparent)" }}
             >
               <img
                 src={previewUrl}
                 alt="Your drawing"
-                className="w-full h-full object-contain mix-blend-multiply"
-                style={{ filter: "contrast(1.1) saturate(1.2)" }}
+                className="w-full h-full object-contain animate-char-idle"
+                style={{ filter: "drop-shadow(2px 6px 8px rgba(0,0,0,0.25)) saturate(1.15)" }}
               />
             </div>
 
