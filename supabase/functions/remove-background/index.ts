@@ -31,8 +31,8 @@ serve(async (req) => {
     const base64Image = base64Encode(imageBuffer);
     const mimeType = imageFile.type || "image/jpeg";
 
-    // Use Lovable AI to remove the background
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Step 1: Describe the character in the drawing using vision
+    const describeResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -46,53 +46,120 @@ serve(async (req) => {
             content: [
               {
                 type: "image_url",
-                image_url: {
-                  url: `data:${mimeType};base64,${base64Image}`,
-                },
+                image_url: { url: `data:${mimeType};base64,${base64Image}` },
               },
               {
                 type: "text",
-                text: "Describe what character or drawing is in this image in 1-2 sentences. Focus on what the drawn character looks like.",
+                text: "Describe the main character or creature drawn in this image in 2-3 sentences. Focus on its appearance, colors, shape, and any distinctive features. This description will be used to recreate the character as a clean game sprite.",
               },
             ],
           },
         ],
-        max_tokens: 200,
+        max_tokens: 300,
       }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      
-      if (response.status === 429) {
+    let description = "a wonderful hand-drawn character";
+    if (describeResponse.ok) {
+      const descResult = await describeResponse.json();
+      description = descResult.choices?.[0]?.message?.content || description;
+    }
+
+    // Step 2: Generate a clean transparent-background sprite based on the description
+    const imageGenResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3.1-flash-image-preview",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "image_url",
+                image_url: { url: `data:${mimeType};base64,${base64Image}` },
+              },
+              {
+                type: "text",
+                text: `Recreate this drawing as a clean, colorful cartoon character sprite on a completely transparent/white background. Keep the same character design, colors and style from the original drawing. Make it look like a fun 2D game character with clear outlines. Pure white background only, no shadows, no ground, no extra elements.`,
+              },
+            ],
+          },
+        ],
+        max_tokens: 4096,
+      }),
+    });
+
+    if (!imageGenResponse.ok) {
+      const errorText = await imageGenResponse.text();
+      console.error("Image gen error:", imageGenResponse.status, errorText);
+
+      if (imageGenResponse.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded, please try again later." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
+      if (imageGenResponse.status === 402) {
         return new Response(JSON.stringify({ error: "Please add credits to your Lovable AI workspace." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      throw new Error(`AI gateway error: ${response.status}`);
+
+      // Fallback: return original image
+      console.log("Falling back to original image");
+      return new Response(
+        JSON.stringify({
+          success: true,
+          imageData: `data:${mimeType};base64,${base64Image}`,
+          description,
+          isExtracted: false,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    const aiResult = await response.json();
-    const description = aiResult.choices?.[0]?.message?.content || "a wonderful drawing";
+    const genResult = await imageGenResponse.json();
 
-    // Return the original image as data URL (background removal via CSS mask in the frontend)
+    // Extract the generated image from the response
+    const content = genResult.choices?.[0]?.message?.content;
+    let extractedImageData: string | null = null;
+
+    if (Array.isArray(content)) {
+      for (const part of content) {
+        if (part.type === "image_url" && part.image_url?.url) {
+          extractedImageData = part.image_url.url;
+          break;
+        }
+      }
+    }
+
+    if (!extractedImageData) {
+      // Fallback to original if image generation didn't produce an image
+      console.log("No image in response, falling back to original");
+      return new Response(
+        JSON.stringify({
+          success: true,
+          imageData: `data:${mimeType};base64,${base64Image}`,
+          description,
+          isExtracted: false,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        imageData: `data:${mimeType};base64,${base64Image}`,
+        imageData: extractedImageData,
         description,
+        isExtracted: true,
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("remove-background error:", error);
