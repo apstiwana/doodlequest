@@ -319,11 +319,11 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
         <SceneBackground scene={scene} cameraX={cameraX} />
       </div>
 
-      {/* Speech bubble */}
+      {/* Speech bubble — follows screen position of character */}
       <SpeechBubble
         text={bubble.text}
         visible={bubble.visible}
-        characterX={physicsDisplay.x}
+        characterX={charScreenX}
         characterY={physicsDisplay.y}
         onDismiss={() => setBubble((prev) => ({ ...prev, visible: false }))}
       />
@@ -342,7 +342,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
           <div
             className="absolute pointer-events-none"
             style={{
-              left: physicsDisplay.x - CHARACTER_SIZE / 2,
+              left: charScreenX - CHARACTER_SIZE / 2,
               top: physicsDisplay.y - CHARACTER_SIZE / 2,
               width: CHARACTER_SIZE,
               height: CHARACTER_SIZE,
@@ -383,12 +383,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
       <div
         className="absolute pointer-events-none rounded-full bg-black/20 blur-sm"
         style={{
-          left: physicsDisplay.x - 30,
+          left: charScreenX - 30,
           top: window.innerHeight - GROUND_OFFSET + 2,
           width: 60,
           height: 12,
           transform: `scaleX(${physicsDisplay.squashStretch})`,
-          opacity: physicsDisplay.isOnGround ? 0.4 : Math.max(0, 0.4 - (groundY - physicsDisplay.y) / 400),
+          opacity: physicsDisplay.isOnGround ? 0.4 : Math.max(0, 0.4 - Math.abs(physicsDisplay.y - (window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2)) / 400),
         }}
       />
 
