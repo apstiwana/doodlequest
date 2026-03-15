@@ -178,7 +178,7 @@ const SpaceBg = () => (
     <ellipse cx="900" cy="150" rx="180" ry="100" fill="#3498DB" opacity="0.08" />
     {/* Planets */}
     <circle cx="200" cy="130" r="55" fill="#E67E22" />
-    <ellipse cx="200" cy="130" rx="80" ry="15" fill="#F39C12" opacity="0.5" stroke="#D68910" strokeWidth="3" fill="none" />
+    <ellipse cx="200" cy="130" rx="80" ry="15" stroke="#D68910" strokeWidth="3" fill="none" opacity="0.5" />
     <circle cx="900" cy="100" r="35" fill="#C0392B" />
     {/* Floating rocks */}
     {[[400,450],[600,400],[800,430],[1000,410],[200,480]].map(([x,y],i) => (
