@@ -5,6 +5,7 @@ import { SpeechBubble } from "./SpeechBubble";
 import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface GameStageProps {
   playerName: string;
