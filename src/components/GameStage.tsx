@@ -212,9 +212,9 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
         p.isJumping = false;
       }
 
-      // Horizontal bounds with edge trigger
+      // Horizontal bounds — clamp to world width, trigger edge dialogue at world edges
       let newX = p.x + newVx;
-      const edgeMargin = 50;
+      const edgeMargin = CHARACTER_SIZE / 2;
       if (newX < edgeMargin) {
         newX = edgeMargin;
         if (!edgeTriggeredRef.current) {
@@ -222,8 +222,8 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
           getCharacterDialogue("edge_reached");
           setTimeout(() => { edgeTriggeredRef.current = false; }, 8000);
         }
-      } else if (newX > window.innerWidth - edgeMargin) {
-        newX = window.innerWidth - edgeMargin;
+      } else if (newX > WORLD_WIDTH - edgeMargin) {
+        newX = WORLD_WIDTH - edgeMargin;
         if (!edgeTriggeredRef.current) {
           edgeTriggeredRef.current = true;
           getCharacterDialogue("edge_reached");
