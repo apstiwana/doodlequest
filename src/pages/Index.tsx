@@ -1,13 +1,46 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { WelcomeScreen } from "@/components/WelcomeScreen";
+import { DrawingUpload } from "@/components/DrawingUpload";
+import { GameStage } from "@/components/GameStage";
+
+type AppStep = "welcome" | "upload" | "game";
 
 const Index = () => {
+  const [step, setStep] = useState<AppStep>("welcome");
+  const [playerName, setPlayerName] = useState("");
+  const [characterImageUrl, setCharacterImageUrl] = useState("");
+  const [characterDescription, setCharacterDescription] = useState("");
+
+  const handleNameSubmit = (name: string) => {
+    setPlayerName(name);
+    setStep("upload");
+  };
+
+  const handleDrawingComplete = (imageUrl: string, description: string) => {
+    setCharacterImageUrl(imageUrl);
+    setCharacterDescription(description);
+    setStep("game");
+  };
+
+  if (step === "welcome") {
+    return <WelcomeScreen onStart={handleNameSubmit} />;
+  }
+
+  if (step === "upload") {
+    return (
+      <DrawingUpload
+        playerName={playerName}
+        onComplete={handleDrawingComplete}
+      />
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <GameStage
+      playerName={playerName}
+      characterImageUrl={characterImageUrl}
+      characterDescription={characterDescription}
+    />
   );
 };
 
