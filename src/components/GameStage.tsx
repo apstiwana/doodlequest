@@ -305,18 +305,18 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
     resetIdleTimer();
   };
 
-  const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
-  const charScaleX = (physicsDisplay.facingRight ? 1 : -1) * 1;
-  const charScaleY = physicsDisplay.isOnGround && !physicsDisplay.isJumping
-    ? 1 / physicsDisplay.squashStretch
-    : physicsDisplay.squashStretch;
-  const charScaleXFinal = Math.abs(1 / physicsDisplay.squashStretch) * (physicsDisplay.facingRight ? 1 : -1);
+  // Camera: scroll so character stays ~40% from left of screen
+  const viewW = window.innerWidth;
+  const rawCameraX = physicsDisplay.x - viewW * CAMERA_LEAD;
+  const cameraX = Math.max(0, Math.min(rawCameraX, WORLD_WIDTH - viewW));
+  // Screen position of character = worldX - cameraX
+  const charScreenX = physicsDisplay.x - cameraX;
 
   return (
     <div className="fixed inset-0 overflow-hidden select-none">
-      {/* Scene background */}
+      {/* Scene background — scrolls with camera */}
       <div className={sceneTransition ? "animate-scene-transition" : ""}>
-        <SceneBackground scene={scene} />
+        <SceneBackground scene={scene} cameraX={cameraX} />
       </div>
 
       {/* Speech bubble */}
