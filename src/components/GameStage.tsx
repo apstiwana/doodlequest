@@ -155,7 +155,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
     }, 5000);
   }, [bubble.visible, getCharacterDialogue]);
 
-  // Scene change
+  // Scene change — reset to start of world
   const handleSceneChange = useCallback((newScene: Scene) => {
     if (newScene === scene) return;
     setSceneTransition(true);
@@ -164,7 +164,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
       const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
       physicsRef.current = {
         ...physicsRef.current,
-        x: window.innerWidth / 2,
+        x: window.innerWidth * CAMERA_LEAD,
         y: groundY,
         vx: 0, vy: 0,
         isOnGround: true,
