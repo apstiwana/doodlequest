@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Scene, SCENE_CONFIG, CharacterPhysics } from "@/types/game";
 import { SceneSelector } from "./SceneSelector";
 import { SpeechBubble } from "./SpeechBubble";
-import { SceneBackground } from "./SceneBackground";
+import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,6 +19,8 @@ const JUMP_FORCE = -14;
 const MOVE_SPEED = 5;
 const CHARACTER_SIZE = 180;
 const GROUND_OFFSET = 90; // px from bottom
+// Camera: character sits at ~40% from left when scrolling
+const CAMERA_LEAD = 0.4;
 
 export function GameStage({ playerName, characterImageUrl, characterDescription }: GameStageProps) {
   const { toast } = useToast();
@@ -57,7 +59,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
   useEffect(() => {
     const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
     physicsRef.current = {
-      x: window.innerWidth / 2,
+      x: window.innerWidth * CAMERA_LEAD,
       y: groundY,
       vx: 0, vy: 0,
       isOnGround: true, facingRight: true,
@@ -153,7 +155,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
     }, 5000);
   }, [bubble.visible, getCharacterDialogue]);
 
-  // Scene change
+  // Scene change — reset to start of world
   const handleSceneChange = useCallback((newScene: Scene) => {
     if (newScene === scene) return;
     setSceneTransition(true);
@@ -162,7 +164,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
       const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
       physicsRef.current = {
         ...physicsRef.current,
-        x: window.innerWidth / 2,
+        x: window.innerWidth * CAMERA_LEAD,
         y: groundY,
         vx: 0, vy: 0,
         isOnGround: true,
@@ -210,9 +212,9 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
         p.isJumping = false;
       }
 
-      // Horizontal bounds with edge trigger
+      // Horizontal bounds — clamp to world width, trigger edge dialogue at world edges
       let newX = p.x + newVx;
-      const edgeMargin = 50;
+      const edgeMargin = CHARACTER_SIZE / 2;
       if (newX < edgeMargin) {
         newX = edgeMargin;
         if (!edgeTriggeredRef.current) {
@@ -220,8 +222,8 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
           getCharacterDialogue("edge_reached");
           setTimeout(() => { edgeTriggeredRef.current = false; }, 8000);
         }
-      } else if (newX > window.innerWidth - edgeMargin) {
-        newX = window.innerWidth - edgeMargin;
+      } else if (newX > WORLD_WIDTH - edgeMargin) {
+        newX = WORLD_WIDTH - edgeMargin;
         if (!edgeTriggeredRef.current) {
           edgeTriggeredRef.current = true;
           getCharacterDialogue("edge_reached");
@@ -303,25 +305,25 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
     resetIdleTimer();
   };
 
-  const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
-  const charScaleX = (physicsDisplay.facingRight ? 1 : -1) * 1;
-  const charScaleY = physicsDisplay.isOnGround && !physicsDisplay.isJumping
-    ? 1 / physicsDisplay.squashStretch
-    : physicsDisplay.squashStretch;
-  const charScaleXFinal = Math.abs(1 / physicsDisplay.squashStretch) * (physicsDisplay.facingRight ? 1 : -1);
+  // Camera: scroll so character stays ~40% from left of screen
+  const viewW = window.innerWidth;
+  const rawCameraX = physicsDisplay.x - viewW * CAMERA_LEAD;
+  const cameraX = Math.max(0, Math.min(rawCameraX, WORLD_WIDTH - viewW));
+  // Screen position of character = worldX - cameraX
+  const charScreenX = physicsDisplay.x - cameraX;
 
   return (
     <div className="fixed inset-0 overflow-hidden select-none">
-      {/* Scene background */}
+      {/* Scene background — scrolls with camera */}
       <div className={sceneTransition ? "animate-scene-transition" : ""}>
-        <SceneBackground scene={scene} />
+        <SceneBackground scene={scene} cameraX={cameraX} />
       </div>
 
-      {/* Speech bubble */}
+      {/* Speech bubble — follows screen position of character */}
       <SpeechBubble
         text={bubble.text}
         visible={bubble.visible}
-        characterX={physicsDisplay.x}
+        characterX={charScreenX}
         characterY={physicsDisplay.y}
         onDismiss={() => setBubble((prev) => ({ ...prev, visible: false }))}
       />
@@ -340,7 +342,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
           <div
             className="absolute pointer-events-none"
             style={{
-              left: physicsDisplay.x - CHARACTER_SIZE / 2,
+              left: charScreenX - CHARACTER_SIZE / 2,
               top: physicsDisplay.y - CHARACTER_SIZE / 2,
               width: CHARACTER_SIZE,
               height: CHARACTER_SIZE,
@@ -381,12 +383,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
       <div
         className="absolute pointer-events-none rounded-full bg-black/20 blur-sm"
         style={{
-          left: physicsDisplay.x - 30,
+          left: charScreenX - 30,
           top: window.innerHeight - GROUND_OFFSET + 2,
           width: 60,
           height: 12,
           transform: `scaleX(${physicsDisplay.squashStretch})`,
-          opacity: physicsDisplay.isOnGround ? 0.4 : Math.max(0, 0.4 - (groundY - physicsDisplay.y) / 400),
+          opacity: physicsDisplay.isOnGround ? 0.4 : Math.max(0, 0.4 - Math.abs(physicsDisplay.y - (window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2)) / 400),
         }}
       />
 
