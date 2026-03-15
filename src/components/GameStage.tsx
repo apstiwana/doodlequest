@@ -25,6 +25,7 @@ const CAMERA_LEAD = 0.4;
 
 export function GameStage({ playerName, characterImageUrl, characterDescription }: GameStageProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [scene, setScene] = useState<Scene>("forest");
   const [sceneTransition, setSceneTransition] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
