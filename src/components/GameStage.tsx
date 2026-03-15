@@ -17,7 +17,7 @@ type DialogueTrigger = "scene_change" | "idle" | "jump_land" | "edge_reached" | 
 const GRAVITY = 0.6;
 const JUMP_FORCE = -14;
 const MOVE_SPEED = 5;
-const CHARACTER_SIZE = 100;
+const CHARACTER_SIZE = 180;
 const GROUND_OFFSET = 90; // px from bottom
 
 export function GameStage({ playerName, characterImageUrl, characterDescription }: GameStageProps) {
