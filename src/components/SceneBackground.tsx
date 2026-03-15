@@ -4,6 +4,21 @@ interface SceneBackgroundProps {
   scene: Scene;
 }
 
+// Pre-computed values to avoid Math.random() in render
+const TREE_SCALES = [0.9, 0.7, 1.0, 0.8, 1.1, 0.75, 0.95, 0.65, 0.85];
+const STAR_DATA = Array.from({ length: 80 }, (_, i) => ({
+  cx: ((i * 137.5) % 1200).toFixed(1),
+  cy: ((i * 73.1) % 550).toFixed(1),
+  r: (1 + (i % 3) * 0.8).toFixed(1),
+  op: (0.3 + (i % 5) * 0.14).toFixed(2),
+}));
+const SPACE_STAR_DATA = Array.from({ length: 150 }, (_, i) => ({
+  cx: ((i * 89.3) % 1200).toFixed(1),
+  cy: ((i * 53.7) % 580).toFixed(1),
+  r: (0.5 + (i % 4) * 0.7).toFixed(1),
+  op: (0.2 + (i % 6) * 0.13).toFixed(2),
+}));
+
 const ForestBg = () => (
   <svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
     <defs>
@@ -24,7 +39,7 @@ const ForestBg = () => (
     ))}
     {/* Trees back row */}
     {[50,180,320,460,600,740,880,1020,1150].map((x,i) => (
-      <g key={i} transform={`translate(${x},480) scale(${0.6+Math.random()*0.5})`}>
+      <g key={i} transform={`translate(${x},480) scale(${TREE_SCALES[i]})`}>
         <rect x="-8" y="0" width="16" height="80" fill="#8B4513" />
         <ellipse cx="0" cy="-40" rx="45" ry="55" fill="#2E8B57" />
         <ellipse cx="-10" cy="-20" rx="38" ry="48" fill="#3CB371" />
