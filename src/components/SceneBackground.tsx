@@ -184,7 +184,7 @@ const SpaceBg = () => (
     {[[400,450],[600,400],[800,430],[1000,410],[200,480]].map(([x,y],i) => (
       <g key={i} transform={`translate(${x},${y})`}>
         <polygon points="0,-20 15,-5 10,15 -10,15 -15,-5" fill="#6B7280" />
-        <polygon points="0,-20 15,-5 10,15 -10,15 -15,-5" fill="#9CA3AF" opacity="0.3" />
+        <polygon points="0,-20 15,-5 10,15 -10,15 -15,-5" fill="#9CA3AF" opacity="0.3" stroke="none" />
       </g>
     ))}
     {/* Space ground / platform */}
