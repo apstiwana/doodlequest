@@ -124,19 +124,43 @@ serve(async (req) => {
     }
 
     const genResult = await imageGenResponse.json();
+    console.log("Image gen result structure:", JSON.stringify(Object.keys(genResult)));
 
     // Extract the generated image from the response
+    // Gemini image models can return images in multiple formats:
+    // 1. Array content with image_url parts
+    // 2. Array content with inline_data (base64) parts
+    // 3. String content with a data URI embedded
     const content = genResult.choices?.[0]?.message?.content;
     let extractedImageData: string | null = null;
 
     if (Array.isArray(content)) {
       for (const part of content) {
+        // Format 1: image_url type
         if (part.type === "image_url" && part.image_url?.url) {
           extractedImageData = part.image_url.url;
           break;
         }
+        // Format 2: inline_data with base64
+        if (part.type === "image" && part.source?.type === "base64") {
+          extractedImageData = `data:${part.source.media_type || "image/png"};base64,${part.source.data}`;
+          break;
+        }
+        // Format 3: inline_data Gemini style
+        if (part.inlineData?.mimeType && part.inlineData?.data) {
+          extractedImageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          break;
+        }
+      }
+    } else if (typeof content === "string") {
+      // Check if the string itself contains a data URI
+      const match = content.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/]+=*/);
+      if (match) {
+        extractedImageData = match[0];
       }
     }
+
+    console.log("Extracted image:", extractedImageData ? `Yes (${extractedImageData.substring(0, 50)}...)` : "No");
 
     if (!extractedImageData) {
       // Fallback to original if image generation didn't produce an image
