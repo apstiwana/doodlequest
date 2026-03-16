@@ -25,10 +25,11 @@ const Index = () => {
     setStep("customize");
   };
 
-  const handleCustomizeComplete = (imageUrl: string, description: string, size: number) => {
+  const handleCustomizeComplete = (imageUrl: string, description: string, size: number, colorFilter: string) => {
     setCharacterImageUrl(imageUrl);
     setCharacterDescription(description);
     setCharacterSize(size);
+    setCharacterColorFilter(colorFilter);
     setStep("game");
   };
 
