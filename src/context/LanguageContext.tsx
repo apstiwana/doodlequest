@@ -41,6 +41,14 @@ export const translations = {
     sceneMoon: "Moon",
     sceneSpace: "Space",
 
+    // CharacterCustomizer
+    customizeTitle: "Customize Your Character!",
+    customizeSubtitle: (name: string) => `${name}, make your hero unique! 🎨`,
+    customizeColor: "Colour",
+    customizeSize: "Size in game",
+    customizeTiny: "Tiny",
+    customizeGiant: "Giant",
+
     // Language toggle
     langLabel: "Language",
   },
