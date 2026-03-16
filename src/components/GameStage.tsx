@@ -12,6 +12,7 @@ interface GameStageProps {
   characterImageUrl: string;
   characterDescription: string;
   characterSize?: number;
+  colorFilter?: string;
 }
 
 type DialogueTrigger = "scene_change" | "idle" | "jump_land" | "edge_reached" | "chat";
