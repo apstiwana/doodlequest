@@ -90,6 +90,14 @@ export const translations = {
     sceneMoon: "Maan",
     sceneSpace: "Ruimte",
 
+    // CharacterCustomizer
+    customizeTitle: "Pas jouw personage aan!",
+    customizeSubtitle: (name: string) => `${name}, maak jouw held uniek! 🎨`,
+    customizeColor: "Kleur",
+    customizeSize: "Grootte in het spel",
+    customizeTiny: "Klein",
+    customizeGiant: "Reus",
+
     // Language toggle
     langLabel: "Taal",
   },
