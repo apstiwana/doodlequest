@@ -24,10 +24,13 @@ const GROUND_OFFSET = 90; // px from bottom
 // Camera: character sits at ~40% from left when scrolling
 const CAMERA_LEAD = 0.4;
 
-export function GameStage({ playerName, characterImageUrl, characterDescription, characterSize = 180 }: GameStageProps) {
+export function GameStage({ playerName, characterImageUrl, characterDescription, characterSize = 180, colorFilter }: GameStageProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const CHARACTER_SIZE = characterSize;
+  const charFilter = colorFilter
+    ? colorFilter
+    : "drop-shadow(3px 6px 8px rgba(0,0,0,0.35)) contrast(1.05) saturate(1.15)";
   const [scene, setScene] = useState<Scene>("forest");
   const [sceneTransition, setSceneTransition] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
