@@ -41,6 +41,14 @@ export const translations = {
     sceneMoon: "Moon",
     sceneSpace: "Space",
 
+    // CharacterCustomizer
+    customizeTitle: "Customize Your Character!",
+    customizeSubtitle: (name: string) => `${name}, make your hero unique! 🎨`,
+    customizeColor: "Colour",
+    customizeSize: "Size in game",
+    customizeTiny: "Tiny",
+    customizeGiant: "Giant",
+
     // Language toggle
     langLabel: "Language",
   },
@@ -81,6 +89,14 @@ export const translations = {
     sceneCity: "Stad",
     sceneMoon: "Maan",
     sceneSpace: "Ruimte",
+
+    // CharacterCustomizer
+    customizeTitle: "Pas jouw personage aan!",
+    customizeSubtitle: (name: string) => `${name}, maak jouw held uniek! 🎨`,
+    customizeColor: "Kleur",
+    customizeSize: "Grootte in het spel",
+    customizeTiny: "Klein",
+    customizeGiant: "Reus",
 
     // Language toggle
     langLabel: "Taal",

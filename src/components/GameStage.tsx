@@ -11,6 +11,8 @@ interface GameStageProps {
   playerName: string;
   characterImageUrl: string;
   characterDescription: string;
+  characterSize?: number;
+  colorFilter?: string;
 }
 
 type DialogueTrigger = "scene_change" | "idle" | "jump_land" | "edge_reached" | "chat";
@@ -18,14 +20,17 @@ type DialogueTrigger = "scene_change" | "idle" | "jump_land" | "edge_reached" | 
 const GRAVITY = 0.6;
 const JUMP_FORCE = -14;
 const MOVE_SPEED = 5;
-const CHARACTER_SIZE = 180;
 const GROUND_OFFSET = 90; // px from bottom
 // Camera: character sits at ~40% from left when scrolling
 const CAMERA_LEAD = 0.4;
 
-export function GameStage({ playerName, characterImageUrl, characterDescription }: GameStageProps) {
+export function GameStage({ playerName, characterImageUrl, characterDescription, characterSize = 180, colorFilter }: GameStageProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const CHARACTER_SIZE = characterSize;
+  const charFilter = colorFilter
+    ? colorFilter
+    : "drop-shadow(3px 6px 8px rgba(0,0,0,0.35)) contrast(1.05) saturate(1.15)";
   const [scene, setScene] = useState<Scene>("forest");
   const [sceneTransition, setSceneTransition] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -372,9 +377,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription 
               src={characterImageUrl}
               alt="Your character"
               className={`w-full h-full object-contain ${animClass}`}
-              style={{
-                filter: "drop-shadow(3px 6px 8px rgba(0,0,0,0.35)) contrast(1.05) saturate(1.15)",
-              }}
+              style={{ filter: charFilter }}
               draggable={false}
             />
           </div>
