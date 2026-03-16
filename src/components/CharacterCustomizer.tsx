@@ -184,7 +184,7 @@ export function CharacterCustomizer({
               {t.tryAgain}
             </button>
             <button
-              onClick={() => onComplete(imageDataUrl, description, size)}
+              onClick={() => onComplete(imageDataUrl, description, size, cssFilter)}
               className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-primary text-primary-foreground font-display text-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/30"
             >
               <Sparkles className="w-5 h-5" />

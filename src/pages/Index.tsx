@@ -12,6 +12,7 @@ const Index = () => {
   const [characterImageUrl, setCharacterImageUrl] = useState("");
   const [characterDescription, setCharacterDescription] = useState("");
   const [characterSize, setCharacterSize] = useState(180);
+  const [characterColorFilter, setCharacterColorFilter] = useState("");
 
   const handleNameSubmit = (name: string) => {
     setPlayerName(name);
