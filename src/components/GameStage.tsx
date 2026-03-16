@@ -19,7 +19,6 @@ type DialogueTrigger = "scene_change" | "idle" | "jump_land" | "edge_reached" | 
 const GRAVITY = 0.6;
 const JUMP_FORCE = -14;
 const MOVE_SPEED = 5;
-const CHARACTER_SIZE = 180;
 const GROUND_OFFSET = 90; // px from bottom
 // Camera: character sits at ~40% from left when scrolling
 const CAMERA_LEAD = 0.4;
