@@ -7,7 +7,7 @@ interface CharacterCustomizerProps {
   playerName: string;
   imageDataUrl: string;
   description: string;
-  onComplete: (imageDataUrl: string, description: string, size: number) => void;
+  onComplete: (imageDataUrl: string, description: string, size: number, colorFilter: string) => void;
   onBack: () => void;
 }
 
