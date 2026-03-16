@@ -377,9 +377,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
               src={characterImageUrl}
               alt="Your character"
               className={`w-full h-full object-contain ${animClass}`}
-              style={{
-                filter: "drop-shadow(3px 6px 8px rgba(0,0,0,0.35)) contrast(1.05) saturate(1.15)",
-              }}
+              style={{ filter: charFilter }}
               draggable={false}
             />
           </div>
