@@ -64,6 +64,7 @@ const Index = () => {
       characterImageUrl={characterImageUrl}
       characterDescription={characterDescription}
       characterSize={characterSize}
+      colorFilter={characterColorFilter}
     />
   );
 };
