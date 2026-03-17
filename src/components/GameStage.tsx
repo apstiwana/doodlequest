@@ -3,6 +3,7 @@ import { Scene, SCENE_CONFIG, CharacterPhysics } from "@/types/game";
 import { SceneSelector } from "./SceneSelector";
 import { SpeechBubble } from "./SpeechBubble";
 import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
+import { ObstaclesLayer, getObstaclesForScene } from "./Obstacles";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
@@ -209,7 +210,6 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         newY = groundY;
         if (!p.isOnGround && !justLandedRef.current) {
           justLandedRef.current = true;
-          // Trigger jump land dialogue occasionally
           if (Math.abs(p.vy) > 10) {
             getCharacterDialogue("jump_land");
           }
@@ -240,11 +240,52 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         edgeTriggeredRef.current = false;
       }
 
+      // Obstacle collision (push back horizontally, can jump over top)
+      const obstacles = getObstaclesForScene(sceneRef.current, groundY);
+      const charHalf = CHARACTER_SIZE / 2;
+      const charTop = newY - charHalf;
+      const charBottom = newY + charHalf;
+
+      for (const obs of obstacles) {
+        const obsLeft = obs.x - obs.width / 2;
+        const obsRight = obs.x + obs.width / 2;
+        const obsTop = obs.y - obs.height / 2;
+        const obsBottom = obs.y + obs.height / 2;
+
+        // AABB overlap check
+        const overlapX = newX + charHalf > obsLeft && newX - charHalf < obsRight;
+        const overlapY = charBottom > obsTop && charTop < obsBottom;
+
+        if (overlapX && overlapY) {
+          // If the character's feet are above the top of the obstacle (jumping over),
+          // let them land on top instead of being pushed sideways
+          const prevCharBottom = p.y + charHalf;
+          if (prevCharBottom <= obsTop + 8 && newVy >= 0) {
+            // Land on top of obstacle
+            newY = obsTop - charHalf;
+            newVy = 0;
+            onGround = true;
+            p.isJumping = false;
+            if (!justLandedRef.current) {
+              justLandedRef.current = true;
+            }
+          } else {
+            // Push character out horizontally
+            const fromLeft = p.x - charHalf < obsLeft;
+            if (fromLeft) {
+              newX = obsLeft - charHalf;
+            } else {
+              newX = obsRight + charHalf;
+            }
+          }
+        }
+      }
+
       // Squash-stretch
       let squashStretch = 1;
-      if (!onGround && newVy < -4) squashStretch = 1.25; // stretch going up
-      if (!onGround && newVy > 4) squashStretch = 0.85;   // stretch going down
-      if (onGround && justLandedRef.current) squashStretch = 1.3; // squash on land
+      if (!onGround && newVy < -4) squashStretch = 1.25;
+      if (!onGround && newVy > 4) squashStretch = 0.85;
+      if (onGround && justLandedRef.current) squashStretch = 1.3;
 
       // Tilt when moving
       const tilt = newVx > 0 ? 8 : newVx < 0 ? -8 : 0;
@@ -325,6 +366,13 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       <div className={sceneTransition ? "animate-scene-transition" : ""}>
         <SceneBackground scene={scene} cameraX={cameraX} />
       </div>
+
+      {/* Obstacles */}
+      <ObstaclesLayer
+        scene={scene}
+        cameraX={cameraX}
+        groundY={window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2}
+      />
 
       {/* Speech bubble — follows screen position of character */}
       <SpeechBubble
