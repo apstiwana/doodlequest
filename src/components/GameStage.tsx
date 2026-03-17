@@ -367,6 +367,13 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         <SceneBackground scene={scene} cameraX={cameraX} />
       </div>
 
+      {/* Obstacles */}
+      <ObstaclesLayer
+        scene={scene}
+        cameraX={cameraX}
+        groundY={window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2}
+      />
+
       {/* Speech bubble — follows screen position of character */}
       <SpeechBubble
         text={bubble.text}
