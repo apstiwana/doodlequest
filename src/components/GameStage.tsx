@@ -18,8 +18,8 @@ interface GameStageProps {
 
 type DialogueTrigger = "scene_change" | "idle" | "jump_land" | "edge_reached" | "chat";
 
-const GRAVITY = 0.6;
-const JUMP_FORCE = -14;
+const GRAVITY = 0.55;
+const JUMP_FORCE = -18;
 const MOVE_SPEED = 5;
 const GROUND_OFFSET = 90; // px from bottom
 // Camera: character sits at ~40% from left when scrolling
