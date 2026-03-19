@@ -375,6 +375,13 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         groundY={window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2}
       />
 
+      {/* Finish line */}
+      <FinishLine
+        scene={scene}
+        cameraX={cameraX}
+        groundY={window.innerHeight - GROUND_OFFSET}
+      />
+
       {/* Speech bubble — follows screen position of character */}
       <SpeechBubble
         text={bubble.text}
