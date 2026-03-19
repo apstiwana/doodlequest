@@ -59,6 +59,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const justLandedRef = useRef(false);
   const edgeTriggeredRef = useRef(false);
+  const finishTriggeredRef = useRef(false);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const isMutedRef = useRef(isMuted);
   const sceneRef = useRef(scene);
