@@ -176,3 +176,9 @@
 .animate-char-idle { animation: idle-bob 2.2s ease-in-out infinite; }
 .animate-char-run  { animation: char-run 0.38s ease-in-out infinite; }
 .animate-char-jump { animation: char-jump 0.35s ease-out forwards; }
+
+@keyframes wave {
+  0%, 100% { transform: skewX(0deg) scaleX(1); }
+  30% { transform: skewX(8deg) scaleX(1.06); }
+  60% { transform: skewX(-5deg) scaleX(0.96); }
+}
