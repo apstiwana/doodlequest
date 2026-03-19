@@ -554,6 +554,27 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       <div className="fixed bottom-4 left-4 z-10 font-body text-xs text-white/50 hidden md:block">
         {t.controlsHint}
       </div>
+
+      {/* Level complete celebration */}
+      {levelComplete && (
+        <LevelComplete
+          scene={scene}
+          playerName={playerName}
+          onContinue={() => {
+            setLevelComplete(false);
+            finishTriggeredRef.current = false;
+            const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
+            physicsRef.current = {
+              ...physicsRef.current,
+              x: window.innerWidth * CAMERA_LEAD,
+              y: groundY,
+              vx: 0, vy: 0,
+              isOnGround: true,
+            };
+            setPhysicsDisplay({ ...physicsRef.current });
+          }}
+        />
+      )}
     </div>
   );
 }
