@@ -42,9 +42,9 @@ function ForestAnimatedLayer() {
   ];
   // Butterflies
   const butterflies = [
-    { startX: 200, y: 200, speed: 0.3, delay: 2 },
-    { startX: 800, y: 250, speed: 0.25, delay: 6 },
-    { startX: 1500, y: 180, speed: 0.35, delay: 10 },
+    { x: 200, y: 200, speed: 0.3, delay: 2 },
+    { x: 800, y: 250, speed: 0.25, delay: 6 },
+    { x: 1500, y: 180, speed: 0.35, delay: 10 },
   ];
   // Deer silhouette on ground
   const deer = [
