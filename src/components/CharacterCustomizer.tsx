@@ -69,8 +69,8 @@ export function CharacterCustomizer({
               alt="Your character"
               className="relative z-10 object-contain animate-char-idle"
               style={{
-                width: size * 2,
-                height: size * 2,
+                width: pixelSize * 2,
+                height: pixelSize * 2,
                 maxWidth: "100%",
                 maxHeight: "100%",
                 filter: cssFilter,
@@ -92,11 +92,11 @@ export function CharacterCustomizer({
               </span>
             </div>
             <Slider
-              min={SIZE_MIN}
-              max={SIZE_MAX}
-              step={5}
-              value={[size]}
-              onValueChange={([v]) => setSize(v)}
+              min={SIZE_SCALE_MIN}
+              max={SIZE_SCALE_MAX}
+              step={0.05}
+              value={[scale]}
+              onValueChange={([v]) => setScale(v)}
               className="w-full"
             />
             <div className="flex justify-between mt-1">
@@ -115,7 +115,7 @@ export function CharacterCustomizer({
               {t.tryAgain}
             </button>
             <button
-              onClick={() => onComplete(imageDataUrl, description, size, cssFilter)}
+              onClick={() => onComplete(imageDataUrl, description, pixelSize, cssFilter)}
               className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-primary text-primary-foreground font-display text-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/30"
             >
               <Sparkles className="w-5 h-5" />
