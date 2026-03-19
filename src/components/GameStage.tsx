@@ -243,6 +243,13 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         edgeTriggeredRef.current = false;
       }
 
+      // Check finish line (FINISH_X = WORLD_WIDTH - 80)
+      const FINISH_X = WORLD_WIDTH - 80;
+      if (!finishTriggeredRef.current && newX >= FINISH_X - CHARACTER_SIZE / 2) {
+        finishTriggeredRef.current = true;
+        setLevelComplete(true);
+      }
+
       // Obstacle collision (push back horizontally, can jump over top)
       const trueGroundY = window.innerHeight - GROUND_OFFSET;
       const obstacles = getObstaclesForScene(sceneRef.current, trueGroundY);
