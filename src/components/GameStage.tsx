@@ -184,6 +184,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       setPhysicsDisplay({ ...physicsRef.current });
       setSceneTransition(false);
       setBubble({ text: "", visible: false });
+      finishTriggeredRef.current = false;
       setTimeout(() => getCharacterDialogue("scene_change"), 600);
     }, 400);
   }, [scene, getCharacterDialogue]);
