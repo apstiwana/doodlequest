@@ -64,7 +64,7 @@ const makeObstacles = (scene: Scene, groundY: number): Obstacle[] => {
 
   return configs.map(({ x, w, h, type }) => ({
     x,
-    y: groundY - h / 2,
+    y: groundY - h / 2,  // center Y so bottom edge sits on groundY
     width: w,
     height: h,
     type,

@@ -11,9 +11,11 @@ interface CharacterCustomizerProps {
   onBack: () => void;
 }
 
-const SIZE_MIN = 60;   // 100% of base 60 → shown as 100%
-const SIZE_MAX = 180;  // 300% of base 60 → shown as 300%
-const SIZE_DEFAULT = 90; // ~150% starting point
+// Slider value maps 1–3 (100%–300%); actual pixel size = value * 60
+const SIZE_SCALE_MIN = 1;   // 100%
+const SIZE_SCALE_MAX = 3;   // 300%
+const SIZE_SCALE_DEFAULT = 1.5; // 150% starting point
+const BASE_SIZE = 60;
 
 export function CharacterCustomizer({
   playerName,
@@ -23,12 +25,13 @@ export function CharacterCustomizer({
   onBack,
 }: CharacterCustomizerProps) {
   const { t } = useLanguage();
-  const [size, setSize] = useState(SIZE_DEFAULT);
+  // scale: 1 = 100%, 3 = 300%. Actual pixel size = scale * BASE_SIZE
+  const [scale, setScale] = useState(SIZE_SCALE_DEFAULT);
+  const pixelSize = Math.round(scale * BASE_SIZE);
 
   const cssFilter = "drop-shadow(2px 6px 8px rgba(0,0,0,0.25))";
 
-  // Display as percentage: SIZE_MIN = 100%, SIZE_MAX = 300%
-  const displayPercent = Math.round(((size - SIZE_MIN) / (SIZE_MAX - SIZE_MIN)) * 200 + 100);
+  const displayPercent = Math.round(scale * 100);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-secondary/20 flex items-center justify-center p-4">
@@ -66,8 +69,8 @@ export function CharacterCustomizer({
               alt="Your character"
               className="relative z-10 object-contain animate-char-idle"
               style={{
-                width: size * 2,
-                height: size * 2,
+                width: pixelSize * 2,
+                height: pixelSize * 2,
                 maxWidth: "100%",
                 maxHeight: "100%",
                 filter: cssFilter,
@@ -89,11 +92,11 @@ export function CharacterCustomizer({
               </span>
             </div>
             <Slider
-              min={SIZE_MIN}
-              max={SIZE_MAX}
-              step={5}
-              value={[size]}
-              onValueChange={([v]) => setSize(v)}
+              min={SIZE_SCALE_MIN}
+              max={SIZE_SCALE_MAX}
+              step={0.05}
+              value={[scale]}
+              onValueChange={([v]) => setScale(v)}
               className="w-full"
             />
             <div className="flex justify-between mt-1">
@@ -112,7 +115,7 @@ export function CharacterCustomizer({
               {t.tryAgain}
             </button>
             <button
-              onClick={() => onComplete(imageDataUrl, description, size, cssFilter)}
+              onClick={() => onComplete(imageDataUrl, description, pixelSize, cssFilter)}
               className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-primary text-primary-foreground font-display text-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/30"
             >
               <Sparkles className="w-5 h-5" />

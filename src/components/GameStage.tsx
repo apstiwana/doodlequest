@@ -5,6 +5,7 @@ import { SpeechBubble } from "./SpeechBubble";
 import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { ObstaclesLayer, getObstaclesForScene } from "./Obstacles";
 import { FinishLine } from "./FinishLine";
+import { LevelComplete } from "./LevelComplete";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
@@ -39,6 +40,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const [levelComplete, setLevelComplete] = useState(false);
 
   // Dialogue
   const [bubble, setBubble] = useState<{ text: string; visible: boolean }>({ text: "", visible: false });
@@ -57,6 +59,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const justLandedRef = useRef(false);
   const edgeTriggeredRef = useRef(false);
+  const finishTriggeredRef = useRef(false);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const isMutedRef = useRef(isMuted);
   const sceneRef = useRef(scene);
@@ -181,6 +184,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       setPhysicsDisplay({ ...physicsRef.current });
       setSceneTransition(false);
       setBubble({ text: "", visible: false });
+      finishTriggeredRef.current = false;
       setTimeout(() => getCharacterDialogue("scene_change"), 600);
     }, 400);
   }, [scene, getCharacterDialogue]);
@@ -241,8 +245,16 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         edgeTriggeredRef.current = false;
       }
 
+      // Check finish line (FINISH_X = WORLD_WIDTH - 80)
+      const FINISH_X = WORLD_WIDTH - 80;
+      if (!finishTriggeredRef.current && newX >= FINISH_X - CHARACTER_SIZE / 2) {
+        finishTriggeredRef.current = true;
+        setLevelComplete(true);
+      }
+
       // Obstacle collision (push back horizontally, can jump over top)
-      const obstacles = getObstaclesForScene(sceneRef.current, groundY);
+      const trueGroundY = window.innerHeight - GROUND_OFFSET;
+      const obstacles = getObstaclesForScene(sceneRef.current, trueGroundY);
       const charHalf = CHARACTER_SIZE / 2;
       const charTop = newY - charHalf;
       const charBottom = newY + charHalf;
@@ -372,7 +384,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       <ObstaclesLayer
         scene={scene}
         cameraX={cameraX}
-        groundY={window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2}
+        groundY={window.innerHeight - GROUND_OFFSET}
       />
 
       {/* Finish line */}
@@ -542,6 +554,27 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       <div className="fixed bottom-4 left-4 z-10 font-body text-xs text-white/50 hidden md:block">
         {t.controlsHint}
       </div>
+
+      {/* Level complete celebration */}
+      {levelComplete && (
+        <LevelComplete
+          scene={scene}
+          playerName={playerName}
+          onContinue={() => {
+            setLevelComplete(false);
+            finishTriggeredRef.current = false;
+            const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
+            physicsRef.current = {
+              ...physicsRef.current,
+              x: window.innerWidth * CAMERA_LEAD,
+              y: groundY,
+              vx: 0, vy: 0,
+              isOnGround: true,
+            };
+            setPhysicsDisplay({ ...physicsRef.current });
+          }}
+        />
+      )}
     </div>
   );
 }
