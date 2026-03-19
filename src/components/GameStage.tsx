@@ -372,7 +372,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       <ObstaclesLayer
         scene={scene}
         cameraX={cameraX}
-        groundY={window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2}
+        groundY={window.innerHeight - GROUND_OFFSET}
       />
 
       {/* Finish line */}
