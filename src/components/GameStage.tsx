@@ -242,7 +242,8 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       }
 
       // Obstacle collision (push back horizontally, can jump over top)
-      const obstacles = getObstaclesForScene(sceneRef.current, groundY);
+      const trueGroundY = window.innerHeight - GROUND_OFFSET;
+      const obstacles = getObstaclesForScene(sceneRef.current, trueGroundY);
       const charHalf = CHARACTER_SIZE / 2;
       const charTop = newY - charHalf;
       const charBottom = newY + charHalf;
