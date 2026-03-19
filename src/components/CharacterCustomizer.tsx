@@ -25,12 +25,13 @@ export function CharacterCustomizer({
   onBack,
 }: CharacterCustomizerProps) {
   const { t } = useLanguage();
-  const [size, setSize] = useState(SIZE_DEFAULT);
+  // scale: 1 = 100%, 3 = 300%. Actual pixel size = scale * BASE_SIZE
+  const [scale, setScale] = useState(SIZE_SCALE_DEFAULT);
+  const pixelSize = Math.round(scale * BASE_SIZE);
 
   const cssFilter = "drop-shadow(2px 6px 8px rgba(0,0,0,0.25))";
 
-  // Display as percentage: SIZE_MIN = 100%, SIZE_MAX = 300%
-  const displayPercent = Math.round(((size - SIZE_MIN) / (SIZE_MAX - SIZE_MIN)) * 200 + 100);
+  const displayPercent = Math.round(scale * 100);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-secondary/20 flex items-center justify-center p-4">
