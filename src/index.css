@@ -203,7 +203,7 @@
 /* Background animated creatures */
 @keyframes fly-across {
   0%   { transform: translateX(-120px); }
-  100% { transform: translateX(calc(${WORLD_WIDTH}px + 120px)); }
+  100% { transform: translateX(3720px); }
 }
 @keyframes butterfly-flutter {
   0%, 100% { transform: translateY(0) rotate(-5deg); }
