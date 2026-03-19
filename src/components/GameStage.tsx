@@ -5,6 +5,7 @@ import { SpeechBubble } from "./SpeechBubble";
 import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { ObstaclesLayer, getObstaclesForScene } from "./Obstacles";
 import { FinishLine } from "./FinishLine";
+import { LevelComplete } from "./LevelComplete";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
