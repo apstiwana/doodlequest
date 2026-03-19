@@ -4,6 +4,7 @@ import { SceneSelector } from "./SceneSelector";
 import { SpeechBubble } from "./SpeechBubble";
 import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { ObstaclesLayer, getObstaclesForScene } from "./Obstacles";
+import { FinishLine } from "./FinishLine";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
@@ -372,6 +373,13 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         scene={scene}
         cameraX={cameraX}
         groundY={window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2}
+      />
+
+      {/* Finish line */}
+      <FinishLine
+        scene={scene}
+        cameraX={cameraX}
+        groundY={window.innerHeight - GROUND_OFFSET}
       />
 
       {/* Speech bubble — follows screen position of character */}

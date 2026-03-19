@@ -1,19 +1,14 @@
 import { Scene } from "@/types/game";
 
 export interface Obstacle {
-  x: number;       // world x center
-  y: number;       // world y center (top of ground = same as character ground level)
+  x: number;
+  y: number;
   width: number;
   height: number;
   type: string;
 }
 
-// Ground Y in world coords = window.innerHeight - 90 (GROUND_OFFSET)
-// Obstacles sit ON the ground, so their bottom = groundY + characterHalfSize
-// We define them by world-x and dimensions; GameStage handles collision
-
 const makeObstacles = (scene: Scene, groundY: number): Obstacle[] => {
-  // Spread obstacles across world width ~3600, avoiding start area (<400)
   const configs: { x: number; w: number; h: number; type: string }[] = {
     forest: [
       { x: 550,  w: 55, h: 34, type: "log" },
@@ -76,105 +71,174 @@ const makeObstacles = (scene: Scene, groundY: number): Obstacle[] => {
   }));
 };
 
-// Per-scene SVG renderers
 function ObstacleSvg({ type, width, height }: { type: string; width: number; height: number }) {
   const w = width;
   const h = height;
 
   if (type === "log") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <rect x="4" y="8" width={w-8} height={h-8} rx="6" fill="#8B4513" />
-      <ellipse cx={w/2} cy="8" rx={(w-8)/2} ry="7" fill="#A0522D" />
-      <ellipse cx={w/2} cy="8" rx={(w-14)/2} ry="5" fill="#CD853F" />
-      {/* grain lines */}
-      <line x1="6" y1="20" x2={w-6} y2="20" stroke="#6B3410" strokeWidth="1.5" opacity="0.5" />
-      <line x1="6" y1="30" x2={w-6} y2="30" stroke="#6B3410" strokeWidth="1.5" opacity="0.5" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.7))" }}>
+      {/* Main log body */}
+      <rect x="3" y="7" width={w - 6} height={h - 7} rx="5" fill="#6B3210" stroke="#3d1c08" strokeWidth="1.5" />
+      {/* Top end cap */}
+      <ellipse cx={w / 2} cy="7" rx={(w - 6) / 2} ry="7" fill="#A0522D" stroke="#6B3210" strokeWidth="1.5" />
+      {/* Inner ring */}
+      <ellipse cx={w / 2} cy="7" rx={(w - 16) / 2} ry="5" fill="#CD853F" stroke="#A0522D" strokeWidth="1" />
+      {/* Center dot */}
+      <circle cx={w / 2} cy="7" r="3" fill="#D2691E" />
+      {/* Bark grain lines */}
+      <line x1="5" y1="18" x2={w - 5} y2="18" stroke="#3d1c08" strokeWidth="1.5" opacity="0.7" />
+      <line x1="5" y1="26" x2={w - 5} y2="26" stroke="#3d1c08" strokeWidth="1.5" opacity="0.7" />
+      {/* Top highlight */}
+      <ellipse cx={w / 2 - 5} cy="5" rx={(w - 20) / 4} ry="3" fill="white" opacity="0.18" />
     </svg>
   );
 
   if (type === "rock" || type === "moonrock") {
-    const fill = type === "moonrock" ? "#8B9099" : "#6B7280";
-    const light = type === "moonrock" ? "#A0A8B0" : "#9CA3AF";
+    const fill   = type === "moonrock" ? "#6B7280" : "#4B5563";
+    const stroke = type === "moonrock" ? "#374151" : "#1f2937";
+    const light  = type === "moonrock" ? "#C0C8D0" : "#9CA3AF";
     return (
-      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-        <polygon points={`${w*0.1},${h} ${w*0.05},${h*0.5} ${w*0.3},${h*0.1} ${w*0.65},${h*0.05} ${w*0.95},${h*0.4} ${w},${h}`} fill={fill} />
-        <polygon points={`${w*0.05},${h*0.5} ${w*0.3},${h*0.1} ${w*0.55},${h*0.08}`} fill={light} opacity="0.5" />
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.8))" }}>
+        <polygon
+          points={`${w * 0.1},${h} ${w * 0.04},${h * 0.5} ${w * 0.28},${h * 0.08} ${w * 0.65},${h * 0.03} ${w * 0.95},${h * 0.38} ${w},${h}`}
+          fill={fill} stroke={stroke} strokeWidth="2" strokeLinejoin="round"
+        />
+        {/* Light face */}
+        <polygon
+          points={`${w * 0.04},${h * 0.5} ${w * 0.28},${h * 0.08} ${w * 0.55},${h * 0.06} ${w * 0.3},${h * 0.45}`}
+          fill={light} opacity="0.55"
+        />
+        {/* Shine spot */}
+        <ellipse cx={w * 0.28} cy={h * 0.2} rx={w * 0.08} ry={h * 0.06} fill="white" opacity="0.25" />
       </svg>
     );
   }
 
   if (type === "stump") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <rect x={w*0.15} y={h*0.3} width={w*0.7} height={h*0.7} rx="4" fill="#7B5230" />
-      <ellipse cx={w/2} cy={h*0.3} rx={w*0.38} ry={h*0.14} fill="#A0722A" />
-      <ellipse cx={w/2} cy={h*0.3} rx={w*0.24} ry={h*0.08} fill="#C49A40" />
-      <line x1={w*0.2} y1={h*0.55} x2={w*0.8} y2={h*0.55} stroke="#5a3a18" strokeWidth="1.5" opacity="0.4" />
-      <line x1={w*0.2} y1={h*0.7} x2={w*0.8} y2={h*0.7} stroke="#5a3a18" strokeWidth="1.5" opacity="0.4" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.7))" }}>
+      {/* Trunk */}
+      <rect x={w * 0.14} y={h * 0.28} width={w * 0.72} height={h * 0.72} rx="4" fill="#5a3a10" stroke="#3a2208" strokeWidth="1.5" />
+      {/* Top ring */}
+      <ellipse cx={w / 2} cy={h * 0.28} rx={w * 0.38} ry={h * 0.14} fill="#9B6B28" stroke="#6B3A10" strokeWidth="1.5" />
+      <ellipse cx={w / 2} cy={h * 0.28} rx={w * 0.24} ry={h * 0.09} fill="#C49A40" />
+      <circle cx={w / 2} cy={h * 0.28} r={w * 0.08} fill="#D4AA55" />
+      {/* Bark lines */}
+      <line x1={w * 0.18} y1={h * 0.52} x2={w * 0.82} y2={h * 0.52} stroke="#3a2208" strokeWidth="1.5" opacity="0.6" />
+      <line x1={w * 0.18} y1={h * 0.7}  x2={w * 0.82} y2={h * 0.7}  stroke="#3a2208" strokeWidth="1.5" opacity="0.6" />
     </svg>
   );
 
   if (type === "coral") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      {[w*0.2, w*0.5, w*0.78].map((cx, i) => (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.8))" }}>
+      {[
+        { cx: w * 0.2,  color: "#FF3333", tip: "#FF7755", strokeC: "#CC1100" },
+        { cx: w * 0.52, color: "#FF5500", tip: "#FFA060", strokeC: "#CC3300" },
+        { cx: w * 0.8,  color: "#FF2266", tip: "#FF88AA", strokeC: "#CC0044" },
+      ].map((c, i) => (
         <g key={i}>
-          <rect x={cx-5} y={h*0.2-i*8} width="10" height={h*0.8+i*8} fill={["#FF6B6B","#FF8C69","#FF7F50"][i]} rx="5" />
-          <circle cx={cx} cy={h*0.2-i*8} r="8" fill={["#FF8C69","#FFA07A","#FF6347"][i]} />
+          <rect
+            x={c.cx - 6} y={h * 0.15 - i * 10}
+            width="12" height={h * 0.85 + i * 10}
+            fill={c.color} rx="6"
+            stroke={c.strokeC} strokeWidth="1.5"
+          />
+          <circle cx={c.cx} cy={h * 0.15 - i * 10} r="9" fill={c.tip} stroke={c.strokeC} strokeWidth="1.5" />
+          {/* Shine */}
+          <circle cx={c.cx - 2} cy={h * 0.18 - i * 10} r="3" fill="white" opacity="0.35" />
         </g>
       ))}
     </svg>
   );
 
   if (type === "shell") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <ellipse cx={w/2} cy={h*0.65} rx={w*0.42} ry={h*0.38} fill="#F0E68C" />
-      <ellipse cx={w/2} cy={h*0.65} rx={w*0.42} ry={h*0.38} fill="none" stroke="#D4B483" strokeWidth="2" />
-      {[-1,0,1].map(i => (
-        <line key={i} x1={w/2+i*8} y1={h*0.3} x2={w/2+i*12} y2={h} stroke="#D4B483" strokeWidth="1.5" opacity="0.6" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.75))" }}>
+      {/* Shadow base */}
+      <ellipse cx={w / 2} cy={h * 0.72} rx={w * 0.44} ry={h * 0.4} fill="#B8960A" opacity="0.5" />
+      {/* Main shell */}
+      <ellipse cx={w / 2} cy={h * 0.65} rx={w * 0.42} ry={h * 0.37} fill="#F5D020" stroke="#C8940A" strokeWidth="2" />
+      {/* Ridges */}
+      {[-1, 0, 1].map(i => (
+        <line key={i} x1={w / 2 + i * 9} y1={h * 0.3} x2={w / 2 + i * 13} y2={h * 0.98}
+          stroke="#B8840A" strokeWidth="2" opacity="0.7" />
       ))}
+      {/* Shine */}
+      <ellipse cx={w / 2 - 6} cy={h * 0.42} rx={w * 0.12} ry={h * 0.1} fill="white" opacity="0.3" />
     </svg>
   );
 
   if (type === "barrel") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <rect x={w*0.12} y={h*0.05} width={w*0.76} height={h*0.9} rx="8" fill="#8B4513" />
-      {[0.22, 0.5, 0.78].map((t, i) => (
-        <rect key={i} x={w*0.08} y={h*t - 3} width={w*0.84} height="6" rx="3" fill="#5a2d0c" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.75))" }}>
+      {/* Body */}
+      <rect x={w * 0.1} y={h * 0.04} width={w * 0.8} height={h * 0.92} rx="9"
+        fill="#7B3A0A" stroke="#3d1c05" strokeWidth="2" />
+      {/* Metal bands */}
+      {[0.18, 0.5, 0.82].map((t, i) => (
+        <rect key={i} x={w * 0.06} y={h * t - 4} width={w * 0.88} height="8" rx="4"
+          fill="#2a1205" stroke="#111" strokeWidth="1" />
       ))}
-      <rect x={w*0.08} y={h*0.22-3} width={w*0.84} height="6" rx="3" fill="#D2691E" opacity="0.4" />
+      {/* Highlight streak */}
+      <rect x={w * 0.2} y={h * 0.08} width={w * 0.12} height={h * 0.8} rx="6"
+        fill="white" opacity="0.12" />
     </svg>
   );
 
   if (type === "crate") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <rect x="3" y="3" width={w-6} height={h-6} rx="4" fill="#D2B48C" stroke="#A0784A" strokeWidth="3" />
-      <line x1="3" y1="3" x2={w-3} y2={h-3} stroke="#A0784A" strokeWidth="2" opacity="0.5" />
-      <line x1={w-3} y1="3" x2="3" y2={h-3} stroke="#A0784A" strokeWidth="2" opacity="0.5" />
-      <rect x="3" y={h/2-2} width={w-6} height="4" fill="#A0784A" opacity="0.5" />
-      <rect x={w/2-2} y="3" width="4" height={h-6} fill="#A0784A" opacity="0.5" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.75))" }}>
+      {/* Body */}
+      <rect x="2" y="2" width={w - 4} height={h - 4} rx="4"
+        fill="#C8A464" stroke="#7A4E22" strokeWidth="3" />
+      {/* X braces */}
+      <line x1="2" y1="2" x2={w - 2} y2={h - 2} stroke="#7A4E22" strokeWidth="2.5" opacity="0.7" />
+      <line x1={w - 2} y1="2" x2="2" y2={h - 2} stroke="#7A4E22" strokeWidth="2.5" opacity="0.7" />
+      {/* Horizontal band */}
+      <rect x="2" y={h / 2 - 3} width={w - 4} height="6" fill="#7A4E22" opacity="0.6" />
+      {/* Vertical band */}
+      <rect x={w / 2 - 3} y="2" width="6" height={h - 4} fill="#7A4E22" opacity="0.6" />
+      {/* Top highlight */}
+      <rect x="4" y="4" width={w - 8} height="5" rx="2" fill="white" opacity="0.15" />
     </svg>
   );
 
   if (type === "crater") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <ellipse cx={w/2} cy={h*0.7} rx={w*0.45} ry={h*0.35} fill="#6B7280" />
-      <ellipse cx={w/2} cy={h*0.7} rx={w*0.3} ry={h*0.22} fill="#4B5563" />
-      <ellipse cx={w/2} cy={h*0.62} rx={w*0.3} ry={h*0.22} fill="none" stroke="#9CA3AF" strokeWidth="2" opacity="0.5" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.9))" }}>
+      {/* Rim */}
+      <ellipse cx={w / 2} cy={h * 0.65} rx={w * 0.47} ry={h * 0.37}
+        fill="#5B6270" stroke="#2d3340" strokeWidth="2" />
+      {/* Inner bowl */}
+      <ellipse cx={w / 2} cy={h * 0.68} rx={w * 0.3} ry={h * 0.24} fill="#374151" />
+      {/* Rim highlight */}
+      <ellipse cx={w * 0.35} cy={h * 0.5} rx={w * 0.15} ry={h * 0.07}
+        fill="#C0C8D0" opacity="0.45" />
     </svg>
   );
 
   if (type === "asteroid") return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <polygon points={`${w*0.1},${h*0.9} ${w*0.05},${h*0.5} ${w*0.2},${h*0.1} ${w*0.55},${h*0.05} ${w*0.9},${h*0.2} ${w*0.95},${h*0.65} ${w*0.75},${h*0.95}`} fill="#4B5563" />
-      <circle cx={w*0.35} cy={h*0.35} r={w*0.1} fill="#374151" opacity="0.8" />
-      <circle cx={w*0.65} cy={h*0.6} r={w*0.08} fill="#374151" opacity="0.8" />
-      <polygon points={`${w*0.1},${h*0.9} ${w*0.05},${h*0.5} ${w*0.2},${h*0.1}`} fill="#6B7280" opacity="0.4" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ filter: "drop-shadow(0 3px 8px rgba(150,80,255,0.5))" }}>
+      {/* Body */}
+      <polygon
+        points={`${w * 0.1},${h * 0.9} ${w * 0.04},${h * 0.5} ${w * 0.18},${h * 0.08} ${w * 0.55},${h * 0.03} ${w * 0.92},${h * 0.18} ${w * 0.96},${h * 0.65} ${w * 0.75},${h * 0.96}`}
+        fill="#374151" stroke="#6d28d9" strokeWidth="2" strokeLinejoin="round"
+      />
+      {/* Surface craters */}
+      <circle cx={w * 0.35} cy={h * 0.35} r={w * 0.1} fill="#1f2937" stroke="#4B5563" strokeWidth="1" opacity="0.9" />
+      <circle cx={w * 0.65} cy={h * 0.6}  r={w * 0.08} fill="#1f2937" stroke="#4B5563" strokeWidth="1" opacity="0.9" />
+      {/* Light face */}
+      <polygon
+        points={`${w * 0.1},${h * 0.9} ${w * 0.04},${h * 0.5} ${w * 0.18},${h * 0.08}`}
+        fill="#6B7280" opacity="0.5"
+      />
+      {/* Glow */}
+      <polygon
+        points={`${w * 0.55},${h * 0.03} ${w * 0.92},${h * 0.18} ${w * 0.7},${h * 0.12}`}
+        fill="white" opacity="0.15"
+      />
     </svg>
   );
 
-  // fallback box
+  // fallback
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <rect x="2" y="2" width={w-4} height={h-4} rx="6" fill="#6B7280" />
+      <rect x="2" y="2" width={w - 4} height={h - 4} rx="6" fill="#4B5563" stroke="#1f2937" strokeWidth="2" />
     </svg>
   );
 }
@@ -182,7 +246,7 @@ function ObstacleSvg({ type, width, height }: { type: string; width: number; hei
 interface ObstaclesLayerProps {
   scene: Scene;
   cameraX: number;
-  groundY: number; // screen groundY
+  groundY: number;
 }
 
 export function getObstaclesForScene(scene: Scene, groundY: number): Obstacle[] {
@@ -197,7 +261,6 @@ export function ObstaclesLayer({ scene, cameraX, groundY }: ObstaclesLayerProps)
       {obstacles.map((obs, i) => {
         const screenX = obs.x - cameraX - obs.width / 2;
         const screenY = obs.y - obs.height / 2;
-        // Only render if near viewport
         if (screenX > window.innerWidth + 100 || screenX < -obs.width - 100) return null;
         return (
           <div
