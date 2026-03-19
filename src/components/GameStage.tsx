@@ -40,6 +40,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const [levelComplete, setLevelComplete] = useState(false);
 
   // Dialogue
   const [bubble, setBubble] = useState<{ text: string; visible: boolean }>({ text: "", visible: false });
