@@ -431,7 +431,7 @@ const UnderwaterBg = () => (
       const x = 100 + i*200;
       const colors = ["#FF6B6B","#FF8C69","#FF7F50","#FFB6C1","#FF6347","#4ECDC4"];
       return (
-        <g key={i} transform={`translate(${x},560)`}>
+        <g key={i} transform={`translate(${x},595)`}>
           {[-12,0,12].map((dx,j) => (
             <g key={j} transform={`translate(${dx},0)`}>
               <rect x="-4" y={-40-j*8} width="8" height={40+j*8} fill={colors[(i+j)%6]} rx="4" />
