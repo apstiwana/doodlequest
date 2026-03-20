@@ -199,8 +199,8 @@ function UnderwaterAnimatedLayer() {
       {/* Whale */}
       <div className="absolute pointer-events-none" style={{ top: 300, animation: `fly-across 120s 20s linear infinite`, fontSize: "48px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }}>🐋</div>
       {/* Octopus on ground */}
-      <div className="absolute pointer-events-none" style={{ left: 700, bottom: 120, animation: "squirrel-hop 5s 1s ease-in-out infinite", fontSize: "40px" }}>🐙</div>
-      <div className="absolute pointer-events-none" style={{ left: 2200, bottom: 120, animation: "squirrel-hop 5s 3s ease-in-out infinite", fontSize: "36px" }}>🦑</div>
+      <div className="absolute pointer-events-none" style={{ left: 700, bottom: 90, animation: "squirrel-hop 5s 1s ease-in-out infinite", fontSize: "40px" }}>🐙</div>
+      <div className="absolute pointer-events-none" style={{ left: 2200, bottom: 90, animation: "squirrel-hop 5s 3s ease-in-out infinite", fontSize: "36px" }}>🦑</div>
     </>
   );
 }
