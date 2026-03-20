@@ -442,11 +442,11 @@ const UnderwaterBg = () => (
       );
     })}
     {/* Sandy ground */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#C2A06E" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="15" fill="#D4B483" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#C2A06E" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="15" fill="#D4B483" />
     {/* Seashells */}
     {Array.from({length:20},(_,i)=>(
-      <ellipse key={i} cx={150+i*180} cy="582" rx="8" ry="5" fill={["#FFB6C1","#F0E68C","#E6D5C3"][i%3]} opacity="0.7"/>
+      <ellipse key={i} cx={150+i*180} cy="617" rx="8" ry="5" fill={["#FFB6C1","#F0E68C","#E6D5C3"][i%3]} opacity="0.7"/>
     ))}
   </svg>
 );
