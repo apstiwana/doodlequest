@@ -92,7 +92,7 @@ function ForestAnimatedLayer() {
           className="absolute pointer-events-none"
           style={{
             left: d.x,
-            bottom: 115,
+            bottom: 90,
             animation: `deer-graze 6s ${d.delay}s ease-in-out infinite`,
             fontSize: "36px",
             transform: d.dir === -1 ? "scaleX(-1)" : undefined,
@@ -102,11 +102,11 @@ function ForestAnimatedLayer() {
         </div>
       ))}
       {/* Squirrel */}
-      <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 118, animation: "squirrel-hop 4s 1s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
-      <div className="absolute pointer-events-none" style={{ left: 2400, bottom: 118, animation: "squirrel-hop 4s 3s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
+      <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 92, animation: "squirrel-hop 4s 1s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
+      <div className="absolute pointer-events-none" style={{ left: 2400, bottom: 92, animation: "squirrel-hop 4s 3s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
       {/* Rabbit */}
-      <div className="absolute pointer-events-none" style={{ left: 400, bottom: 116, animation: "rabbit-hop 2.5s 0.5s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
-      <div className="absolute pointer-events-none" style={{ left: 2100, bottom: 116, animation: "rabbit-hop 2.5s 2s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
+      <div className="absolute pointer-events-none" style={{ left: 400, bottom: 90, animation: "rabbit-hop 2.5s 0.5s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
+      <div className="absolute pointer-events-none" style={{ left: 2100, bottom: 90, animation: "rabbit-hop 2.5s 2s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
     </>
   );
 }
