@@ -484,15 +484,15 @@ const CityBg = () => {
         </g>
       ))}
       {/* Sidewalk */}
-      <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#94a3b8" />
-      <rect x="0" y="575" width={WORLD_WIDTH} height="15" fill="#cbd5e1" />
+      <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#94a3b8" />
+      <rect x="0" y="610" width={WORLD_WIDTH} height="15" fill="#cbd5e1" />
       {/* Road dashes */}
       {Array.from({length:36},(_,i)=>(
-        <rect key={i} x={i*100+10} y="610" width="60" height="8" fill="white" opacity="0.45" rx="4"/>
+        <rect key={i} x={i*100+10} y="640" width="60" height="8" fill="white" opacity="0.45" rx="4"/>
       ))}
       {/* Street lights */}
       {Array.from({length:12},(_,i)=>(
-        <g key={i} transform={`translate(${150+i*300},490)`}>
+        <g key={i} transform={`translate(${150+i*300},525)`}>
           <rect x="-3" y="0" width="6" height="85" fill="#4a5568" />
           <rect x="-3" y="0" width="35" height="5" fill="#4a5568" rx="2" />
           <circle cx="32" cy="3" r="9" fill="#FFE66D" opacity="0.9" />
