@@ -581,10 +581,10 @@ const SpaceBg = () => (
       </g>
     ))}
     {/* Space ground */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#1e1b4b" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="18" fill="#2d2a5e" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#1e1b4b" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="18" fill="#2d2a5e" />
     {Array.from({length:36},(_,i)=>(
-      <text key={i} x={100+i*98} y="595" fontSize="12" fill="#FFE66D" opacity="0.45">✦</text>
+      <text key={i} x={100+i*98} y="630" fontSize="12" fill="#FFE66D" opacity="0.45">✦</text>
     ))}
   </svg>
 );
