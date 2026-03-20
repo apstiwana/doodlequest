@@ -92,7 +92,7 @@ function ForestAnimatedLayer() {
           className="absolute pointer-events-none"
           style={{
             left: d.x,
-            bottom: 115,
+            bottom: 90,
             animation: `deer-graze 6s ${d.delay}s ease-in-out infinite`,
             fontSize: "36px",
             transform: d.dir === -1 ? "scaleX(-1)" : undefined,
@@ -102,11 +102,11 @@ function ForestAnimatedLayer() {
         </div>
       ))}
       {/* Squirrel */}
-      <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 118, animation: "squirrel-hop 4s 1s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
-      <div className="absolute pointer-events-none" style={{ left: 2400, bottom: 118, animation: "squirrel-hop 4s 3s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
+      <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 92, animation: "squirrel-hop 4s 1s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
+      <div className="absolute pointer-events-none" style={{ left: 2400, bottom: 92, animation: "squirrel-hop 4s 3s ease-in-out infinite", fontSize: "24px" }}>🐿️</div>
       {/* Rabbit */}
-      <div className="absolute pointer-events-none" style={{ left: 400, bottom: 116, animation: "rabbit-hop 2.5s 0.5s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
-      <div className="absolute pointer-events-none" style={{ left: 2100, bottom: 116, animation: "rabbit-hop 2.5s 2s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
+      <div className="absolute pointer-events-none" style={{ left: 400, bottom: 90, animation: "rabbit-hop 2.5s 0.5s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
+      <div className="absolute pointer-events-none" style={{ left: 2100, bottom: 90, animation: "rabbit-hop 2.5s 2s ease-in-out infinite", fontSize: "28px" }}>🐰</div>
     </>
   );
 }
@@ -199,8 +199,8 @@ function UnderwaterAnimatedLayer() {
       {/* Whale */}
       <div className="absolute pointer-events-none" style={{ top: 300, animation: `fly-across 120s 20s linear infinite`, fontSize: "48px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }}>🐋</div>
       {/* Octopus on ground */}
-      <div className="absolute pointer-events-none" style={{ left: 700, bottom: 120, animation: "squirrel-hop 5s 1s ease-in-out infinite", fontSize: "40px" }}>🐙</div>
-      <div className="absolute pointer-events-none" style={{ left: 2200, bottom: 120, animation: "squirrel-hop 5s 3s ease-in-out infinite", fontSize: "36px" }}>🦑</div>
+      <div className="absolute pointer-events-none" style={{ left: 700, bottom: 90, animation: "squirrel-hop 5s 1s ease-in-out infinite", fontSize: "40px" }}>🐙</div>
+      <div className="absolute pointer-events-none" style={{ left: 2200, bottom: 90, animation: "squirrel-hop 5s 3s ease-in-out infinite", fontSize: "36px" }}>🦑</div>
     </>
   );
 }
@@ -287,9 +287,9 @@ function CityAnimatedLayer() {
         </div>
       ))}
       {/* Cars on ground */}
-      <div className="absolute pointer-events-none" style={{ bottom: 112, animation: `fly-across 25s 0s linear infinite`, fontSize: "32px" }}>🚗</div>
-      <div className="absolute pointer-events-none" style={{ bottom: 112, animation: `fly-across 30s 8s linear infinite`, fontSize: "32px" }}>🚕</div>
-      <div className="absolute pointer-events-none" style={{ bottom: 115, animation: `fly-across 40s 3s linear infinite`, fontSize: "36px" }}>🚌</div>
+      <div className="absolute pointer-events-none" style={{ bottom: 90, animation: `fly-across 25s 0s linear infinite`, fontSize: "32px" }}>🚗</div>
+      <div className="absolute pointer-events-none" style={{ bottom: 90, animation: `fly-across 30s 8s linear infinite`, fontSize: "32px" }}>🚕</div>
+      <div className="absolute pointer-events-none" style={{ bottom: 92, animation: `fly-across 40s 3s linear infinite`, fontSize: "36px" }}>🚌</div>
     </>
   );
 }
@@ -348,8 +348,8 @@ function AlienLayer({ scene }: { scene: "moon" | "space" }) {
       {/* Astronaut on the moon */}
       {scene === "moon" && (
         <>
-          <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 116, animation: "squirrel-hop 8s 2s ease-in-out infinite", fontSize: "36px" }}>👨‍🚀</div>
-          <div className="absolute pointer-events-none" style={{ left: 2500, bottom: 116, animation: "squirrel-hop 8s 5s ease-in-out infinite", fontSize: "36px" }}>👩‍🚀</div>
+          <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 90, animation: "squirrel-hop 8s 2s ease-in-out infinite", fontSize: "36px" }}>👨‍🚀</div>
+          <div className="absolute pointer-events-none" style={{ left: 2500, bottom: 90, animation: "squirrel-hop 8s 5s ease-in-out infinite", fontSize: "36px" }}>👩‍🚀</div>
           <div className="absolute pointer-events-none" style={{ top: 250, animation: `fly-across 80s 10s linear infinite`, fontSize: "32px", filter: "drop-shadow(0 0 6px #c0c8e0)" }}>🛸</div>
         </>
       )}
@@ -384,22 +384,22 @@ const ForestBg = () => (
       </g>
     ))}
     {/* Ground */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#4a7c59" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="20" fill="#5d9e6c" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#4a7c59" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="20" fill="#5d9e6c" />
     {/* Ground detail patches */}
     {Array.from({length: 24}, (_,i) => (
-      <ellipse key={i} cx={80+i*150} cy="579" rx="30" ry="6" fill="#3d6b45" opacity="0.5" />
+      <ellipse key={i} cx={80+i*150} cy="614" rx="30" ry="6" fill="#3d6b45" opacity="0.5" />
     ))}
     {/* Flowers */}
     {FLOWER_XS.map((x,i) => (
-      <g key={i} transform={`translate(${x},577)`}>
+      <g key={i} transform={`translate(${x},612)`}>
         <rect x="-1" y="-12" width="2" height="12" fill="#3d6b45" />
         <circle cx="0" cy="-14" r="5" fill={["#FF6B6B","#FFE66D","#FF69B4","#FF6B6B","#FFD700"][i%5]} />
       </g>
     ))}
     {/* Mushrooms */}
     {[340, 760, 1340, 1960, 2540, 3100].map((x,i) => (
-      <g key={i} transform={`translate(${x},562)`}>
+      <g key={i} transform={`translate(${x},597)`}>
         <rect x="-4" y="-14" width="8" height="14" fill="#FAEBD7" />
         <ellipse cx="0" cy="-16" rx="14" ry="10" fill={i%2===0?"#FF6B6B":"#FFE66D"} />
         <circle cx="-5" cy="-19" r="2.5" fill="white" opacity="0.8" />
@@ -431,7 +431,7 @@ const UnderwaterBg = () => (
       const x = 100 + i*200;
       const colors = ["#FF6B6B","#FF8C69","#FF7F50","#FFB6C1","#FF6347","#4ECDC4"];
       return (
-        <g key={i} transform={`translate(${x},560)`}>
+        <g key={i} transform={`translate(${x},595)`}>
           {[-12,0,12].map((dx,j) => (
             <g key={j} transform={`translate(${dx},0)`}>
               <rect x="-4" y={-40-j*8} width="8" height={40+j*8} fill={colors[(i+j)%6]} rx="4" />
@@ -442,11 +442,11 @@ const UnderwaterBg = () => (
       );
     })}
     {/* Sandy ground */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#C2A06E" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="15" fill="#D4B483" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#C2A06E" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="15" fill="#D4B483" />
     {/* Seashells */}
     {Array.from({length:20},(_,i)=>(
-      <ellipse key={i} cx={150+i*180} cy="582" rx="8" ry="5" fill={["#FFB6C1","#F0E68C","#E6D5C3"][i%3]} opacity="0.7"/>
+      <ellipse key={i} cx={150+i*180} cy="617" rx="8" ry="5" fill={["#FFB6C1","#F0E68C","#E6D5C3"][i%3]} opacity="0.7"/>
     ))}
   </svg>
 );
@@ -484,15 +484,15 @@ const CityBg = () => {
         </g>
       ))}
       {/* Sidewalk */}
-      <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#94a3b8" />
-      <rect x="0" y="575" width={WORLD_WIDTH} height="15" fill="#cbd5e1" />
+      <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#94a3b8" />
+      <rect x="0" y="610" width={WORLD_WIDTH} height="15" fill="#cbd5e1" />
       {/* Road dashes */}
       {Array.from({length:36},(_,i)=>(
-        <rect key={i} x={i*100+10} y="610" width="60" height="8" fill="white" opacity="0.45" rx="4"/>
+        <rect key={i} x={i*100+10} y="640" width="60" height="8" fill="white" opacity="0.45" rx="4"/>
       ))}
       {/* Street lights */}
       {Array.from({length:12},(_,i)=>(
-        <g key={i} transform={`translate(${150+i*300},490)`}>
+        <g key={i} transform={`translate(${150+i*300},525)`}>
           <rect x="-3" y="0" width="6" height="85" fill="#4a5568" />
           <rect x="-3" y="0" width="35" height="5" fill="#4a5568" rx="2" />
           <circle cx="32" cy="3" r="9" fill="#FFE66D" opacity="0.9" />
@@ -521,25 +521,25 @@ const MoonBg = () => (
     <circle cx="2500" cy="150" r="50" fill="#FFE66D" opacity="0.6" />
     <circle cx="3200" cy="100" r="35" fill="#1E90FF" opacity="0.5" />
     {/* Moon surface */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#8B9099" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="18" fill="#A0A8B0" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#8B9099" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="18" fill="#A0A8B0" />
     {/* Craters */}
     {Array.from({length:18},(_,i)=>{
       const x=150+i*200; const r=20+i%4*12;
       return (
         <g key={i}>
-          <ellipse cx={x} cy={590} rx={r} ry={r*0.4} fill="#6B7280" opacity="0.6"/>
-          <ellipse cx={x} cy={590} rx={r*0.6} ry={r*0.25} fill="#9CA3AF" opacity="0.4"/>
+          <ellipse cx={x} cy={625} rx={r} ry={r*0.4} fill="#6B7280" opacity="0.6"/>
+          <ellipse cx={x} cy={625} rx={r*0.6} ry={r*0.25} fill="#9CA3AF" opacity="0.4"/>
         </g>
       );
     })}
     {/* Rocks */}
     {Array.from({length:22},(_,i)=>(
-      <ellipse key={i} cx={100+i*160} cy="575" rx={12+i%4*4} ry={8+i%3*3} fill="#7B8290"/>
+      <ellipse key={i} cx={100+i*160} cy="610" rx={12+i%4*4} ry={8+i%3*3} fill="#7B8290"/>
     ))}
     {/* Flags */}
     {[800, 1800, 2800].map((x,i)=>(
-      <g key={i} transform={`translate(${x},520)`}>
+      <g key={i} transform={`translate(${x},555)`}>
         <rect x="-2" y="0" width="4" height="55" fill="#aaa"/>
         <polygon points="2,0 32,10 2,20" fill={["#FF6B6B","#FFE66D","#4ECDC4"][i]}/>
       </g>
@@ -581,10 +581,10 @@ const SpaceBg = () => (
       </g>
     ))}
     {/* Space ground */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#1e1b4b" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="18" fill="#2d2a5e" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#1e1b4b" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="18" fill="#2d2a5e" />
     {Array.from({length:36},(_,i)=>(
-      <text key={i} x={100+i*98} y="595" fontSize="12" fill="#FFE66D" opacity="0.45">✦</text>
+      <text key={i} x={100+i*98} y="630" fontSize="12" fill="#FFE66D" opacity="0.45">✦</text>
     ))}
   </svg>
 );
