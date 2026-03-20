@@ -521,25 +521,25 @@ const MoonBg = () => (
     <circle cx="2500" cy="150" r="50" fill="#FFE66D" opacity="0.6" />
     <circle cx="3200" cy="100" r="35" fill="#1E90FF" opacity="0.5" />
     {/* Moon surface */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#8B9099" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="18" fill="#A0A8B0" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#8B9099" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="18" fill="#A0A8B0" />
     {/* Craters */}
     {Array.from({length:18},(_,i)=>{
       const x=150+i*200; const r=20+i%4*12;
       return (
         <g key={i}>
-          <ellipse cx={x} cy={590} rx={r} ry={r*0.4} fill="#6B7280" opacity="0.6"/>
-          <ellipse cx={x} cy={590} rx={r*0.6} ry={r*0.25} fill="#9CA3AF" opacity="0.4"/>
+          <ellipse cx={x} cy={625} rx={r} ry={r*0.4} fill="#6B7280" opacity="0.6"/>
+          <ellipse cx={x} cy={625} rx={r*0.6} ry={r*0.25} fill="#9CA3AF" opacity="0.4"/>
         </g>
       );
     })}
     {/* Rocks */}
     {Array.from({length:22},(_,i)=>(
-      <ellipse key={i} cx={100+i*160} cy="575" rx={12+i%4*4} ry={8+i%3*3} fill="#7B8290"/>
+      <ellipse key={i} cx={100+i*160} cy="610" rx={12+i%4*4} ry={8+i%3*3} fill="#7B8290"/>
     ))}
     {/* Flags */}
     {[800, 1800, 2800].map((x,i)=>(
-      <g key={i} transform={`translate(${x},520)`}>
+      <g key={i} transform={`translate(${x},555)`}>
         <rect x="-2" y="0" width="4" height="55" fill="#aaa"/>
         <polygon points="2,0 32,10 2,20" fill={["#FF6B6B","#FFE66D","#4ECDC4"][i]}/>
       </g>
