@@ -384,22 +384,22 @@ const ForestBg = () => (
       </g>
     ))}
     {/* Ground */}
-    <rect x="0" y="575" width={WORLD_WIDTH} height="125" fill="#4a7c59" />
-    <rect x="0" y="575" width={WORLD_WIDTH} height="20" fill="#5d9e6c" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="90" fill="#4a7c59" />
+    <rect x="0" y="610" width={WORLD_WIDTH} height="20" fill="#5d9e6c" />
     {/* Ground detail patches */}
     {Array.from({length: 24}, (_,i) => (
-      <ellipse key={i} cx={80+i*150} cy="579" rx="30" ry="6" fill="#3d6b45" opacity="0.5" />
+      <ellipse key={i} cx={80+i*150} cy="614" rx="30" ry="6" fill="#3d6b45" opacity="0.5" />
     ))}
     {/* Flowers */}
     {FLOWER_XS.map((x,i) => (
-      <g key={i} transform={`translate(${x},577)`}>
+      <g key={i} transform={`translate(${x},612)`}>
         <rect x="-1" y="-12" width="2" height="12" fill="#3d6b45" />
         <circle cx="0" cy="-14" r="5" fill={["#FF6B6B","#FFE66D","#FF69B4","#FF6B6B","#FFD700"][i%5]} />
       </g>
     ))}
     {/* Mushrooms */}
     {[340, 760, 1340, 1960, 2540, 3100].map((x,i) => (
-      <g key={i} transform={`translate(${x},562)`}>
+      <g key={i} transform={`translate(${x},597)`}>
         <rect x="-4" y="-14" width="8" height="14" fill="#FAEBD7" />
         <ellipse cx="0" cy="-16" rx="14" ry="10" fill={i%2===0?"#FF6B6B":"#FFE66D"} />
         <circle cx="-5" cy="-19" r="2.5" fill="white" opacity="0.8" />
