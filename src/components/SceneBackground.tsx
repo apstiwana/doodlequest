@@ -348,8 +348,8 @@ function AlienLayer({ scene }: { scene: "moon" | "space" }) {
       {/* Astronaut on the moon */}
       {scene === "moon" && (
         <>
-          <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 116, animation: "squirrel-hop 8s 2s ease-in-out infinite", fontSize: "36px" }}>👨‍🚀</div>
-          <div className="absolute pointer-events-none" style={{ left: 2500, bottom: 116, animation: "squirrel-hop 8s 5s ease-in-out infinite", fontSize: "36px" }}>👩‍🚀</div>
+          <div className="absolute pointer-events-none" style={{ left: 1200, bottom: 90, animation: "squirrel-hop 8s 2s ease-in-out infinite", fontSize: "36px" }}>👨‍🚀</div>
+          <div className="absolute pointer-events-none" style={{ left: 2500, bottom: 90, animation: "squirrel-hop 8s 5s ease-in-out infinite", fontSize: "36px" }}>👩‍🚀</div>
           <div className="absolute pointer-events-none" style={{ top: 250, animation: `fly-across 80s 10s linear infinite`, fontSize: "32px", filter: "drop-shadow(0 0 6px #c0c8e0)" }}>🛸</div>
         </>
       )}
