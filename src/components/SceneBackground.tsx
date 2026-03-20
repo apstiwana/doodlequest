@@ -287,9 +287,9 @@ function CityAnimatedLayer() {
         </div>
       ))}
       {/* Cars on ground */}
-      <div className="absolute pointer-events-none" style={{ bottom: 112, animation: `fly-across 25s 0s linear infinite`, fontSize: "32px" }}>🚗</div>
-      <div className="absolute pointer-events-none" style={{ bottom: 112, animation: `fly-across 30s 8s linear infinite`, fontSize: "32px" }}>🚕</div>
-      <div className="absolute pointer-events-none" style={{ bottom: 115, animation: `fly-across 40s 3s linear infinite`, fontSize: "36px" }}>🚌</div>
+      <div className="absolute pointer-events-none" style={{ bottom: 90, animation: `fly-across 25s 0s linear infinite`, fontSize: "32px" }}>🚗</div>
+      <div className="absolute pointer-events-none" style={{ bottom: 90, animation: `fly-across 30s 8s linear infinite`, fontSize: "32px" }}>🚕</div>
+      <div className="absolute pointer-events-none" style={{ bottom: 92, animation: `fly-across 40s 3s linear infinite`, fontSize: "36px" }}>🚌</div>
     </>
   );
 }
