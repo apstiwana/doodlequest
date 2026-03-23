@@ -42,6 +42,10 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const [chatInput, setChatInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
+  const [score, setScore] = useState(0);
+  const [stars, setStars] = useState<Star[]>([]);
+  const starsRef = useRef<Star[]>([]);
+  const scoreRef = useRef(0);
 
   // Dialogue
   const [bubble, setBubble] = useState<{ text: string; visible: boolean }>({ text: "", visible: false });
