@@ -195,6 +195,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       setSceneTransition(false);
       setBubble({ text: "", visible: false });
       finishTriggeredRef.current = false;
+      // Reset stars for new scene
+      const fresh = generateStars(newScene, window.innerHeight - GROUND_OFFSET);
+      starsRef.current = fresh;
+      setStars([...fresh]);
+      scoreRef.current = 0;
+      setScore(0);
       setTimeout(() => getCharacterDialogue("scene_change"), 600);
     }, 400);
   }, [scene, getCharacterDialogue]);
