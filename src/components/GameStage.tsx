@@ -423,6 +423,13 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         groundY={window.innerHeight - GROUND_OFFSET}
       />
 
+      {/* Collectible Stars */}
+      <CollectibleStarsLayer
+        stars={stars}
+        cameraX={cameraX}
+        scene={scene}
+      />
+
       {/* Finish line */}
       <FinishLine
         scene={scene}
