@@ -4,6 +4,7 @@ import { Scene } from "@/types/game";
 interface LevelCompleteProps {
   scene: Scene;
   playerName: string;
+  score: number;
   onContinue: () => void;
 }
 
