@@ -65,7 +65,7 @@ function StarBurst({ delay = 0 }: { delay?: number }) {
   );
 }
 
-export function LevelComplete({ scene, playerName, onContinue }: LevelCompleteProps) {
+export function LevelComplete({ scene, playerName, score, onContinue }: LevelCompleteProps) {
   const [show, setShow] = useState(false);
   const d = SCENE_DATA[scene];
 
