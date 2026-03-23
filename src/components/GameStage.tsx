@@ -310,6 +310,26 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         }
       }
 
+      // Star collection
+      const STAR_RADIUS = 22;
+      let collected = false;
+      const updatedStars = starsRef.current.map((s) => {
+        if (s.collected) return s;
+        const dx = newX - s.worldX;
+        const dy = (newY - CHARACTER_SIZE / 4) - s.worldY; // use upper-body center
+        if (Math.abs(dx) < STAR_RADIUS + CHARACTER_SIZE / 2 && Math.abs(dy) < STAR_RADIUS + CHARACTER_SIZE / 2) {
+          collected = true;
+          return { ...s, collected: true };
+        }
+        return s;
+      });
+      if (collected) {
+        starsRef.current = updatedStars;
+        setStars([...updatedStars]);
+        scoreRef.current += 10;
+        setScore(scoreRef.current);
+      }
+
       // Squash-stretch
       let squashStretch = 1;
       if (!onGround && newVy < -4) squashStretch = 1.25;
