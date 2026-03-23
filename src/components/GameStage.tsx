@@ -171,11 +171,9 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     idleTimerRef.current = setTimeout(() => {
-      if (!bubble.visible) {
-        getCharacterDialogue("idle");
-      }
+      getCharacterDialogue("idle");
     }, 5000);
-  }, [bubble.visible, getCharacterDialogue]);
+  }, [getCharacterDialogue]);
 
   // Scene change — reset to start of world
   const handleSceneChange = useCallback((newScene: Scene) => {
@@ -514,7 +512,8 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       {/* Score HUD */}
       <div className="fixed top-4 left-4 z-20 flex items-center gap-2 bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl px-4 py-2 shadow-md">
         <span className="text-xl" style={{ filter: "drop-shadow(0 0 6px #FFE66D)" }}>⭐</span>
-        <span className="font-display text-2xl text-foreground">{score}</span>
+        <span className="font-display text-2xl text-foreground">{Math.round(score / 10)}</span>
+        <span className="font-body text-xs text-muted-foreground">stars</span>
       </div>
 
       {/* Top-right controls */}

@@ -183,6 +183,8 @@
   60% { transform: skewX(-5deg) scaleX(0.96); }
 }
 
+.animate-flag-wave { animation: wave 1.2s ease-in-out infinite; }
+
 /* Level complete celebration */
 @keyframes confetti-fall {
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }

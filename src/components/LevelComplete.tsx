@@ -128,7 +128,7 @@ export function LevelComplete({ scene, playerName, score, onContinue }: LevelCom
         >
           <span className="text-3xl">⭐</span>
           <div className="text-left">
-            <p className="font-display text-4xl text-white leading-none">{score}</p>
+            <p className="font-display text-4xl text-white leading-none">{Math.round(score / 10)}</p>
             <p className="font-body text-white/70 text-xs">stars collected</p>
           </div>
         </div>
