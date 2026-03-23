@@ -117,9 +117,21 @@ export function LevelComplete({ scene, playerName, score, onContinue }: LevelCom
         <p className="font-body text-white/90 text-lg mb-1">
           Amazing job, <strong>{playerName}</strong>!
         </p>
-        <p className="font-body text-white/70 text-base mb-6">
+        <p className="font-body text-white/70 text-base mb-4">
           You finished the {d.emoji} {d.label} level!
         </p>
+
+        {/* Score */}
+        <div
+          className="flex items-center justify-center gap-3 mb-6 px-6 py-3 rounded-2xl"
+          style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}
+        >
+          <span className="text-3xl">⭐</span>
+          <div className="text-left">
+            <p className="font-display text-4xl text-white leading-none">{score}</p>
+            <p className="font-body text-white/70 text-xs">stars collected</p>
+          </div>
+        </div>
 
         <button
           onClick={onContinue}
