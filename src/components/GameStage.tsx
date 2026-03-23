@@ -72,7 +72,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
   useEffect(() => { sceneRef.current = scene; }, [scene]);
 
-  // Initialize position
+  // Initialize position + stars
   useEffect(() => {
     const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
     physicsRef.current = {
@@ -83,6 +83,11 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       isJumping: false, squashStretch: 1, tilt: 0,
     };
     setPhysicsDisplay({ ...physicsRef.current });
+    const initial = generateStars("forest", window.innerHeight - GROUND_OFFSET);
+    starsRef.current = initial;
+    setStars([...initial]);
+    scoreRef.current = 0;
+    setScore(0);
   }, []);
 
   const speakText = useCallback(async (text: string) => {
