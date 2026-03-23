@@ -171,11 +171,9 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     idleTimerRef.current = setTimeout(() => {
-      if (!bubble.visible) {
-        getCharacterDialogue("idle");
-      }
+      getCharacterDialogue("idle");
     }, 5000);
-  }, [bubble.visible, getCharacterDialogue]);
+  }, [getCharacterDialogue]);
 
   // Scene change — reset to start of world
   const handleSceneChange = useCallback((newScene: Scene) => {
