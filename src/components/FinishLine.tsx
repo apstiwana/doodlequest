@@ -76,7 +76,7 @@ export function FinishLine({ scene, cameraX, groundY }: FinishLineProps) {
 
       {/* Waving flag */}
       <div
-        className="absolute animate-[wave_1.2s_ease-in-out_infinite]"
+        className="absolute animate-flag-wave"
         style={{
           left: 10,
           top: poleTop + 4,
