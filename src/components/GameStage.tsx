@@ -511,6 +511,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       {/* Scene selector */}
       <SceneSelector currentScene={scene} onSceneChange={handleSceneChange} />
 
+      {/* Score HUD */}
+      <div className="fixed top-4 left-4 z-20 flex items-center gap-2 bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl px-4 py-2 shadow-md">
+        <span className="text-xl" style={{ filter: "drop-shadow(0 0 6px #FFE66D)" }}>⭐</span>
+        <span className="font-display text-2xl text-foreground">{score}</span>
+      </div>
+
       {/* Top-right controls */}
       <div className="fixed top-4 right-4 flex items-center gap-2 z-20">
         <button
