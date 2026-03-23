@@ -609,6 +609,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         <LevelComplete
           scene={scene}
           playerName={playerName}
+          score={score}
           onContinue={() => {
             setLevelComplete(false);
             finishTriggeredRef.current = false;
@@ -621,6 +622,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
               isOnGround: true,
             };
             setPhysicsDisplay({ ...physicsRef.current });
+            // Reset stars for replay
+            const fresh = generateStars(scene, window.innerHeight - GROUND_OFFSET);
+            starsRef.current = fresh;
+            setStars([...fresh]);
+            scoreRef.current = 0;
+            setScore(0);
           }}
         />
       )}
