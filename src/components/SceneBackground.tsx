@@ -589,16 +589,20 @@ const SpaceBg = () => (
   </svg>
 );
 
+// The SVG world height — all backgrounds and physics use this logical height
+export const WORLD_HEIGHT = 700;
+
 export function SceneBackground({ scene, cameraX }: SceneBackgroundProps) {
   return (
     <div className="fixed inset-0 overflow-hidden">
+      {/* Scrolling world layer — exactly WORLD_HEIGHT tall, anchored to screen bottom */}
       <div
         style={{
           position: "absolute",
-          top: 0,
+          bottom: 0,
           left: 0,
           width: WORLD_WIDTH,
-          height: "100%",
+          height: WORLD_HEIGHT,
           transform: `translateX(${-cameraX}px)`,
           willChange: "transform",
         }}
