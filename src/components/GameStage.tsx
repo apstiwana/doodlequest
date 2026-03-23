@@ -6,6 +6,7 @@ import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
 import { ObstaclesLayer, getObstaclesForScene } from "./Obstacles";
 import { FinishLine } from "./FinishLine";
 import { LevelComplete } from "./LevelComplete";
+import { CollectibleStarsLayer, generateStars, Star } from "./CollectibleStars";
 import { Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
@@ -41,6 +42,10 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   const [chatInput, setChatInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
+  const [score, setScore] = useState(0);
+  const [stars, setStars] = useState<Star[]>([]);
+  const starsRef = useRef<Star[]>([]);
+  const scoreRef = useRef(0);
 
   // Dialogue
   const [bubble, setBubble] = useState<{ text: string; visible: boolean }>({ text: "", visible: false });
@@ -67,7 +72,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
   useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
   useEffect(() => { sceneRef.current = scene; }, [scene]);
 
-  // Initialize position
+  // Initialize position + stars
   useEffect(() => {
     const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
     physicsRef.current = {
@@ -78,6 +83,11 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       isJumping: false, squashStretch: 1, tilt: 0,
     };
     setPhysicsDisplay({ ...physicsRef.current });
+    const initial = generateStars("forest", window.innerHeight - GROUND_OFFSET);
+    starsRef.current = initial;
+    setStars([...initial]);
+    scoreRef.current = 0;
+    setScore(0);
   }, []);
 
   const speakText = useCallback(async (text: string) => {
@@ -185,6 +195,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       setSceneTransition(false);
       setBubble({ text: "", visible: false });
       finishTriggeredRef.current = false;
+      // Reset stars for new scene
+      const fresh = generateStars(newScene, window.innerHeight - GROUND_OFFSET);
+      starsRef.current = fresh;
+      setStars([...fresh]);
+      scoreRef.current = 0;
+      setScore(0);
       setTimeout(() => getCharacterDialogue("scene_change"), 600);
     }, 400);
   }, [scene, getCharacterDialogue]);
@@ -294,6 +310,26 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         }
       }
 
+      // Star collection
+      const STAR_RADIUS = 22;
+      let collected = false;
+      const updatedStars = starsRef.current.map((s) => {
+        if (s.collected) return s;
+        const dx = newX - s.worldX;
+        const dy = (newY - CHARACTER_SIZE / 4) - s.worldY; // use upper-body center
+        if (Math.abs(dx) < STAR_RADIUS + CHARACTER_SIZE / 2 && Math.abs(dy) < STAR_RADIUS + CHARACTER_SIZE / 2) {
+          collected = true;
+          return { ...s, collected: true };
+        }
+        return s;
+      });
+      if (collected) {
+        starsRef.current = updatedStars;
+        setStars([...updatedStars]);
+        scoreRef.current += 10;
+        setScore(scoreRef.current);
+      }
+
       // Squash-stretch
       let squashStretch = 1;
       if (!onGround && newVy < -4) squashStretch = 1.25;
@@ -387,6 +423,13 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         groundY={window.innerHeight - GROUND_OFFSET}
       />
 
+      {/* Collectible Stars */}
+      <CollectibleStarsLayer
+        stars={stars}
+        cameraX={cameraX}
+        scene={scene}
+      />
+
       {/* Finish line */}
       <FinishLine
         scene={scene}
@@ -467,6 +510,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
 
       {/* Scene selector */}
       <SceneSelector currentScene={scene} onSceneChange={handleSceneChange} />
+
+      {/* Score HUD */}
+      <div className="fixed top-4 left-4 z-20 flex items-center gap-2 bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl px-4 py-2 shadow-md">
+        <span className="text-xl" style={{ filter: "drop-shadow(0 0 6px #FFE66D)" }}>⭐</span>
+        <span className="font-display text-2xl text-foreground">{score}</span>
+      </div>
 
       {/* Top-right controls */}
       <div className="fixed top-4 right-4 flex items-center gap-2 z-20">
@@ -560,6 +609,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
         <LevelComplete
           scene={scene}
           playerName={playerName}
+          score={score}
           onContinue={() => {
             setLevelComplete(false);
             finishTriggeredRef.current = false;
@@ -572,6 +622,12 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
               isOnGround: true,
             };
             setPhysicsDisplay({ ...physicsRef.current });
+            // Reset stars for replay
+            const fresh = generateStars(scene, window.innerHeight - GROUND_OFFSET);
+            starsRef.current = fresh;
+            setStars([...fresh]);
+            scoreRef.current = 0;
+            setScore(0);
           }}
         />
       )}
