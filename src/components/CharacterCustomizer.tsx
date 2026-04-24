@@ -12,11 +12,11 @@ interface CharacterCustomizerProps {
 }
 
 // Slider value maps 1–3 (100%–300%); actual pixel size = value * BASE_SIZE
-// BASE_SIZE=80 → 80px at 100%, 240px at 300%
+// BASE_SIZE=120 → 120px at 100%, 360px at 300%
 const SIZE_SCALE_MIN = 1;   // 100%
 const SIZE_SCALE_MAX = 3;   // 300%
-const SIZE_SCALE_DEFAULT = 1.5; // 150% starting point → 120px
-const BASE_SIZE = 80;
+const SIZE_SCALE_DEFAULT = 1.5; // 150% starting point → 180px
+const BASE_SIZE = 120;
 
 export function CharacterCustomizer({
   playerName,
