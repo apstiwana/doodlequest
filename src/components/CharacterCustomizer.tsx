@@ -54,7 +54,7 @@ export function CharacterCustomizer({
           {/* Character Preview */}
           <div
             className="relative mx-auto rounded-2xl overflow-hidden bg-gradient-to-br from-muted/40 to-background flex items-end justify-center"
-            style={{ width: 240, height: 240 }}
+            style={{ width: 360, height: 360 }}
           >
             {/* checkerboard-style subtle grid to show transparency */}
             <div
@@ -68,12 +68,10 @@ export function CharacterCustomizer({
             <img
               src={imageDataUrl}
               alt="Your character"
-              className="relative z-10 object-contain animate-char-idle"
+              className="relative z-10 object-contain object-bottom animate-char-idle"
               style={{
-                width: pixelSize * 2,
-                height: pixelSize * 2,
-                maxWidth: "100%",
-                maxHeight: "100%",
+                width: pixelSize,
+                height: pixelSize,
                 filter: cssFilter,
               }}
             />
