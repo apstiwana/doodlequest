@@ -309,7 +309,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       }
 
       // Star collection
-      const STAR_RADIUS = 22;
+      const STAR_RADIUS = 40;
       let collected = false;
       const updatedStars = starsRef.current.map((s) => {
         if (s.collected) return s;
