@@ -12,11 +12,11 @@ interface CharacterCustomizerProps {
 }
 
 // Slider value maps 1–3 (100%–300%); actual pixel size = value * BASE_SIZE
-// BASE_SIZE=80 → 80px at 100%, 240px at 300%
+// BASE_SIZE=120 → 120px at 100%, 360px at 300%
 const SIZE_SCALE_MIN = 1;   // 100%
 const SIZE_SCALE_MAX = 3;   // 300%
-const SIZE_SCALE_DEFAULT = 1.5; // 150% starting point → 120px
-const BASE_SIZE = 80;
+const SIZE_SCALE_DEFAULT = 1.5; // 150% starting point → 180px
+const BASE_SIZE = 120;
 
 export function CharacterCustomizer({
   playerName,
@@ -54,7 +54,7 @@ export function CharacterCustomizer({
           {/* Character Preview */}
           <div
             className="relative mx-auto rounded-2xl overflow-hidden bg-gradient-to-br from-muted/40 to-background flex items-end justify-center"
-            style={{ width: 240, height: 240 }}
+            style={{ width: 360, height: 360 }}
           >
             {/* checkerboard-style subtle grid to show transparency */}
             <div
@@ -68,12 +68,10 @@ export function CharacterCustomizer({
             <img
               src={imageDataUrl}
               alt="Your character"
-              className="relative z-10 object-contain animate-char-idle"
+              className="relative z-10 object-contain object-bottom animate-char-idle"
               style={{
-                width: pixelSize * 2,
-                height: pixelSize * 2,
-                maxWidth: "100%",
-                maxHeight: "100%",
+                width: pixelSize,
+                height: pixelSize,
                 filter: cssFilter,
               }}
             />

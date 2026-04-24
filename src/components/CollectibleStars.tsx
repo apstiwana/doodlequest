@@ -70,10 +70,10 @@ export function CollectibleStarsLayer({ stars, cameraX, scene }: CollectibleStar
             key={star.id}
             className="absolute"
             style={{
-              left: screenX - 18,
-              top: star.worldY - 18,
-              width: 36,
-              height: 36,
+              left: screenX - 36,
+              top: star.worldY - 36,
+              width: 72,
+              height: 72,
             }}
           >
             {/* Glow ring */}
@@ -87,7 +87,7 @@ export function CollectibleStarsLayer({ stars, cameraX, scene }: CollectibleStar
             />
             {/* Star emoji with sparkle */}
             <div
-              className="absolute inset-0 flex items-center justify-center text-2xl animate-star-spin"
+              className="absolute inset-0 flex items-center justify-center text-5xl animate-star-spin"
               style={{
                 animationDuration: `${2 + (star.id % 3) * 0.5}s`,
                 filter: `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`,

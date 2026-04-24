@@ -309,7 +309,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
       }
 
       // Star collection
-      const STAR_RADIUS = 22;
+      const STAR_RADIUS = 40;
       let collected = false;
       const updatedStars = starsRef.current.map((s) => {
         if (s.collected) return s;
@@ -485,7 +485,7 @@ export function GameStage({ playerName, characterImageUrl, characterDescription,
             <img
               src={characterImageUrl}
               alt="Your character"
-              className={`w-full h-full object-contain ${animClass}`}
+              className={`w-full h-full object-contain object-bottom ${animClass}`}
               style={{ filter: charFilter }}
               draggable={false}
             />
