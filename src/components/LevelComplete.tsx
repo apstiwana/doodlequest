@@ -144,6 +144,17 @@ export function LevelComplete({ scene, playerName, score, onContinue }: LevelCom
         >
           Play Again 🎮
         </button>
+
+        <a
+          href="https://buy.stripe.com/bJecN61zY4Bw6wddRC0RG00"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block mt-5 font-body text-sm text-white/60 hover:text-white transition-colors text-center leading-relaxed"
+        >
+          💝 If you got some happiness or a moment with your child,
+          <br />
+          consider leaving a tip so that I can improve :)
+        </a>
       </div>
     </div>
   );
