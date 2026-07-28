@@ -3,25 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
+
+    <!--
+      Not indexed, by decision (S2.5). The site is public and usable by other
+      families, but it is aimed at children and nobody asked to be discoverable, so
+      the default is unlisted. Paired with Disallow in public/robots.txt; the
+      authoritative version of this is an X-Robots-Tag response header at the web
+      server, which is hosting config (S10.1).
+    -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+
     <title>Doodle quest</title>
-    <meta name="description" content="Lovable Generated Project">
-    <meta name="author" content="Lovable" />
+    <meta
+      name="description"
+      content="Doodle quest turns a child's drawing into a playable character. A calm game for ages 4-10 that helps build motor skills and hand-eye coordination."
+    />
 
-    <!-- TODO: Update og:title to match your application name -->
-    
-    
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2ce0e43-8116-4054-8778-d38d231eb466/id-preview-1f2cd51d--7ded580a-0738-4469-a807-d32c10b362e7.lovable.app-1773568295385.png">
+    <meta property="og:site_name" content="Doodle quest" />
+    <meta property="og:title" content="Doodle quest" />
+    <meta
+      property="og:description"
+      content="Turn a child's drawing into a character and guide it through a handful of gentle scenes. Made for ages 4-10."
+    />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2ce0e43-8116-4054-8778-d38d231eb466/id-preview-1f2cd51d--7ded580a-0738-4469-a807-d32c10b362e7.lovable.app-1773568295385.png">
-    <meta property="og:title" content="Doodle quest">
-  <meta name="twitter:title" content="Doodle quest">
-  <meta property="og:description" content="Lovable Generated Project">
-  <meta name="twitter:description" content="Lovable Generated Project">
-</head>
+    <!--
+      No og:image / twitter:image yet. The previous tags pointed at a generated
+      preview screenshot on a third-party bucket; they were removed rather than
+      repointed, because a broken image URL degrades link previews more than
+      having no image at all.
+
+      TODO: add a 1200x630 PNG under /public (e.g. /og-image.png) and restore:
+        <meta property="og:image" content="https://<domain>/og-image.png" />
+        <meta name="twitter:image" content="https://<domain>/og-image.png" />
+      Then switch twitter:card below back to "summary_large_image".
+      og:image must be an absolute URL, so this needs the real domain first.
+    -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Doodle quest" />
+    <meta
+      name="twitter:description"
+      content="Turn a child's drawing into a character and guide it through a handful of gentle scenes. Made for ages 4-10."
+    />
+  </head>
 
   <body>
     <div id="root"></div>

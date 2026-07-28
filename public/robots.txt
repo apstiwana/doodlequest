@@ -1,14 +1,12 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Doodle quest is a public site made for children aged 4-10. It is deliberately
+# unlisted: reachable by anyone with the link, but audience growth should be a
+# deliberate choice rather than a side effect of being crawlable (S2.5).
+#
+# Note how this interacts with <meta name="robots" content="noindex"> in index.html: a
+# crawler that honours the Disallow below never fetches the page, so it never reads
+# that meta tag, and a URL discovered elsewhere can still surface as a bare link. The
+# signal that holds in every case is an "X-Robots-Tag: noindex" response header set at
+# the web server — that belongs to the hosting config (S10.1).
 
 User-agent: *
-Allow: /
+Disallow: /
