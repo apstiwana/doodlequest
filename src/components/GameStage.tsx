@@ -1,12 +1,21 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Scene, SCENE_CONFIG, CharacterPhysics } from "@/types/game";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Scene } from "@/types/game";
 import { SceneSelector } from "./SceneSelector";
-import { SceneBackground, WORLD_WIDTH } from "./SceneBackground";
-import { ObstaclesLayer, getObstaclesForScene } from "./Obstacles";
+import { SceneBackground } from "./SceneBackground";
+import { ObstaclesLayer } from "./Obstacles";
 import { FinishLine } from "./FinishLine";
 import { LevelComplete } from "./LevelComplete";
-import { CollectibleStarsLayer, generateStars, Star } from "./CollectibleStars";
+import { CollectibleStarsLayer } from "./CollectibleStars";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  FixedTimestepLoop,
+  FrameMeter,
+  GameCore,
+  GROUND_OFFSET,
+  MOVING_VX,
+  POINTS_PER_STAR,
+  WORLD_WIDTH,
+} from "@/game";
 
 interface GameStageProps {
   playerName: string;
@@ -21,347 +30,348 @@ interface GameStageProps {
   colorFilter?: string;
 }
 
-const GRAVITY = 0.55;
-const JUMP_FORCE = -18;
-const MOVE_SPEED = 5;
-const GROUND_OFFSET = 90; // px from bottom
-// Camera: character sits at ~40% from left when scrolling
-const CAMERA_LEAD = 0.4;
+const CHAR_IMG_CLASS = "w-full h-full object-contain object-bottom";
+const SCENE_TRANSITION_MS = 400;
 
-export function GameStage({ playerName, characterImageUrl, characterSize = 180, colorFilter }: GameStageProps) {
+/** `?debug` on the URL turns on the frame-time overlay S4.1 asks for. */
+function debugEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).has("debug");
+}
+
+/**
+ * The playable stage.
+ *
+ * **The game loop is not in React.** `GameCore` owns the simulation in a plain object,
+ * `FixedTimestepLoop` steps it at a fixed 60 Hz, and this component's only job each frame
+ * is to write a handful of `transform`s onto elements it already rendered. There is no
+ * `setState` anywhere in the frame path — React is told about the game only on discrete
+ * events (a star collected, the level finished) through the core's emitter, which is what
+ * S4.1 requires and what ARCHITECTURE.md §14 rule 2 forbids breaking.
+ *
+ * Rendering is still DOM/SVG on purpose. ARCH's migration sequence keeps DOM rendering for
+ * this step so that the diagnosis — React reconciling several hundred SVG nodes per frame
+ * — is proven fixed before the canvas renderer (E5) changes the picture too.
+ */
+export function GameStage({
+  playerName,
+  characterImageUrl,
+  characterSize = 180,
+  colorFilter,
+}: GameStageProps) {
   const { t } = useLanguage();
-  const CHARACTER_SIZE = characterSize;
   const charFilter = colorFilter
     ? colorFilter
     : "drop-shadow(3px 6px 8px rgba(0,0,0,0.35)) contrast(1.05) saturate(1.15)";
+
   const [scene, setScene] = useState<Scene>("forest");
   const [sceneTransition, setSceneTransition] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
   const [score, setScore] = useState(0);
-  const [stars, setStars] = useState<Star[]>([]);
-  const starsRef = useRef<Star[]>([]);
-  const scoreRef = useRef(0);
+  /** Bumped on each collection so the star layer can drop the collected node. */
+  const [starVersion, setStarVersion] = useState(0);
+  const [viewport, setViewport] = useState(() => ({
+    width: typeof window === "undefined" ? 1024 : window.innerWidth,
+    height: typeof window === "undefined" ? 768 : window.innerHeight,
+  }));
 
-  // Physics
-  const physicsRef = useRef<CharacterPhysics>({
-    x: 0, y: 0, vx: 0, vy: 0,
-    isOnGround: true, facingRight: true,
-    isJumping: false, squashStretch: 1, tilt: 0,
+  // The simulation. Created once, lives outside React's render cycle entirely.
+  const coreRef = useRef<GameCore | null>(null);
+  if (coreRef.current === null) {
+    coreRef.current = new GameCore({
+      scene: "forest",
+      viewportWidth: viewport.width,
+      viewportHeight: viewport.height,
+      characterSize,
+    });
+  }
+  const core = coreRef.current;
+
+  // Elements the loop writes to directly.
+  const bgLayerRef = useRef<HTMLDivElement>(null);
+  const propLayerRef = useRef<HTMLDivElement>(null);
+  const charRef = useRef<HTMLDivElement>(null);
+  const charInnerRef = useRef<HTMLDivElement>(null);
+  const charImgRef = useRef<HTMLImageElement>(null);
+  const shadowRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const sceneTimerRef = useRef<number | null>(null);
+
+  // How many times React has committed this component. Printed by the dev overlay: this
+  // is the number that used to climb by 60 every second. No dependency array on purpose —
+  // it counts commits.
+  const commitsRef = useRef(0);
+  useEffect(() => {
+    commitsRef.current += 1;
   });
-  const [physicsDisplay, setPhysicsDisplay] = useState({ ...physicsRef.current });
 
-  const keysRef = useRef<Set<string>>(new Set());
-  const animFrameRef = useRef<number>(0);
-  const justLandedRef = useRef(false);
-  const finishTriggeredRef = useRef(false);
-  const sceneRef = useRef(scene);
+  const debugRef = useRef<boolean | null>(null);
+  if (debugRef.current === null) debugRef.current = debugEnabled();
+  const debug = debugRef.current;
 
-  useEffect(() => { sceneRef.current = scene; }, [scene]);
+  // ── The frame path ───────────────────────────────────────────────────────────────
+  // `useLayoutEffect`, so the first `render(0)` below lands before the browser paints.
+  // With a plain `useEffect` the character would be drawn once at the top-left corner
+  // before the first animation frame moved it — a visible flash on entering the game.
+  useLayoutEffect(() => {
+    const meter = new FrameMeter();
+    // Last values written to the DOM, so an unchanged frame costs no style write at all.
+    let lastCam = Number.NaN;
+    let lastCharTransform = "";
+    let lastInnerTransform = "";
+    let lastAnim = "";
+    let lastShadowTransform = "";
+    let lastShadowOpacity = "";
+    let stepsThisFrame = 0;
+    const half = characterSize / 2;
 
-  // Initialize position + stars
-  useEffect(() => {
-    const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
-    physicsRef.current = {
-      x: window.innerWidth * CAMERA_LEAD,
-      y: groundY,
-      vx: 0, vy: 0,
-      isOnGround: true, facingRight: true,
-      isJumping: false, squashStretch: 1, tilt: 0,
-    };
-    setPhysicsDisplay({ ...physicsRef.current });
-    const initial = generateStars("forest", window.innerHeight - GROUND_OFFSET);
-    starsRef.current = initial;
-    setStars([...initial]);
-    scoreRef.current = 0;
-    setScore(0);
-  }, []);
+    const render = (alpha: number) => {
+      const c = core.character;
 
-  // Character dialogue and text-to-speech previously ran through two Lovable AI edge
-  // functions. Those are retired with the Supabase project (S0.2), so the character is
-  // silent for now; the curated local phrase bank in S8.1 is what brings dialogue
-  // back, without a network round trip or an AI bill.
+      // Interpolate between the previous and the current tick. This is what lets a 120 Hz
+      // display show smooth motion from a 60 Hz simulation (ARCHITECTURE.md §6.1).
+      const x = core.prevX + (c.x - core.prevX) * alpha;
+      const y = core.prevY + (c.y - core.prevY) * alpha;
+      const cam = Math.round(core.cameraX(x) * 10) / 10;
 
-  // Scene change — reset to start of world
-  const handleSceneChange = useCallback((newScene: Scene) => {
-    if (newScene === scene) return;
-    setSceneTransition(true);
-    setTimeout(() => {
-      setScene(newScene);
-      const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
-      physicsRef.current = {
-        ...physicsRef.current,
-        x: window.innerWidth * CAMERA_LEAD,
-        y: groundY,
-        vx: 0, vy: 0,
-        isOnGround: true,
-      };
-      setPhysicsDisplay({ ...physicsRef.current });
-      setSceneTransition(false);
-      finishTriggeredRef.current = false;
-      // Reset stars for new scene
-      const fresh = generateStars(newScene, window.innerHeight - GROUND_OFFSET);
-      starsRef.current = fresh;
-      setStars([...fresh]);
-      scoreRef.current = 0;
-      setScore(0);
-    }, 400);
-  }, [scene, CHARACTER_SIZE]);
-
-  // Physics loop
-  useEffect(() => {
-    const loop = () => {
-      const p = physicsRef.current;
-      const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
-      const keys = keysRef.current;
-
-      let newVx = 0;
-      if (keys.has("ArrowLeft") || keys.has("a")) newVx = -MOVE_SPEED;
-      if (keys.has("ArrowRight") || keys.has("d")) newVx = MOVE_SPEED;
-
-      // Jump
-      let newVy = p.vy + GRAVITY;
-      if ((keys.has("ArrowUp") || keys.has("w") || keys.has(" ")) && p.isOnGround) {
-        newVy = JUMP_FORCE;
-        p.isJumping = true;
-        justLandedRef.current = false;
+      if (cam !== lastCam) {
+        const layerTransform = `translate3d(${-cam}px,0,0)`;
+        if (bgLayerRef.current) bgLayerRef.current.style.transform = layerTransform;
+        if (propLayerRef.current) propLayerRef.current.style.transform = layerTransform;
+        lastCam = cam;
       }
 
-      // Gravity & ground
-      let newY = p.y + newVy;
-      let onGround = false;
-      if (newY >= groundY) {
-        newY = groundY;
-        if (!p.isOnGround && !justLandedRef.current) {
-          justLandedRef.current = true;
+      const screenX = x - cam;
+      const charTransform = `translate3d(${screenX - half}px,${y - half}px,0)`;
+      if (charTransform !== lastCharTransform && charRef.current) {
+        charRef.current.style.transform = charTransform;
+        lastCharTransform = charTransform;
+      }
+
+      const squash = c.squashStretch;
+      const innerTransform =
+        `scaleX(${c.facingRight ? squash : -squash}) ` +
+        `scaleY(${1 / Math.max(squash, 0.5)}) ` +
+        `rotate(${c.tilt}deg)`;
+      if (innerTransform !== lastInnerTransform && charInnerRef.current) {
+        charInnerRef.current.style.transform = innerTransform;
+        lastInnerTransform = innerTransform;
+      }
+
+      const isMoving = c.vx > MOVING_VX || c.vx < -MOVING_VX;
+      const anim = !c.isOnGround
+        ? "animate-char-jump"
+        : isMoving
+          ? "animate-char-run"
+          : "animate-char-idle";
+      if (anim !== lastAnim && charImgRef.current) {
+        charImgRef.current.className = `${CHAR_IMG_CLASS} ${anim}`;
+        lastAnim = anim;
+      }
+
+      const groundTop = core.groundY;
+      const shadowTransform = `translate3d(${screenX - 30}px,${groundTop + 2}px,0) scaleX(${squash})`;
+      const shadowOpacity = c.isOnGround
+        ? "0.4"
+        : String(Math.max(0, 0.4 - Math.abs(y - (groundTop - half)) / 400));
+      if (shadowRef.current) {
+        if (shadowTransform !== lastShadowTransform) {
+          shadowRef.current.style.transform = shadowTransform;
+          lastShadowTransform = shadowTransform;
         }
-        newVy = 0;
-        onGround = true;
-        p.isJumping = false;
-      }
-
-      // Horizontal bounds — clamp to world width
-      let newX = p.x + newVx;
-      const edgeMargin = CHARACTER_SIZE / 2;
-      if (newX < edgeMargin) {
-        newX = edgeMargin;
-      } else if (newX > WORLD_WIDTH - edgeMargin) {
-        newX = WORLD_WIDTH - edgeMargin;
-      }
-
-      // Check finish line (FINISH_X = WORLD_WIDTH - 80)
-      const FINISH_X = WORLD_WIDTH - 80;
-      if (!finishTriggeredRef.current && newX >= FINISH_X - CHARACTER_SIZE / 2) {
-        finishTriggeredRef.current = true;
-        setLevelComplete(true);
-      }
-
-      // Obstacle collision (push back horizontally, can jump over top)
-      const trueGroundY = window.innerHeight - GROUND_OFFSET;
-      const obstacles = getObstaclesForScene(sceneRef.current, trueGroundY);
-      const charHalf = CHARACTER_SIZE / 2;
-      const charTop = newY - charHalf;
-      const charBottom = newY + charHalf;
-
-      for (const obs of obstacles) {
-        const obsLeft = obs.x - obs.width / 2;
-        const obsRight = obs.x + obs.width / 2;
-        const obsTop = obs.y - obs.height / 2;
-        const obsBottom = obs.y + obs.height / 2;
-
-        // AABB overlap check
-        const overlapX = newX + charHalf > obsLeft && newX - charHalf < obsRight;
-        const overlapY = charBottom > obsTop && charTop < obsBottom;
-
-        if (overlapX && overlapY) {
-          // If the character's feet are above the top of the obstacle (jumping over),
-          // let them land on top instead of being pushed sideways
-          const prevCharBottom = p.y + charHalf;
-          if (prevCharBottom <= obsTop + 8 && newVy >= 0) {
-            // Land on top of obstacle
-            newY = obsTop - charHalf;
-            newVy = 0;
-            onGround = true;
-            p.isJumping = false;
-            if (!justLandedRef.current) {
-              justLandedRef.current = true;
-            }
-          } else {
-            // Push character out horizontally
-            const fromLeft = p.x - charHalf < obsLeft;
-            if (fromLeft) {
-              newX = obsLeft - charHalf;
-            } else {
-              newX = obsRight + charHalf;
-            }
-          }
+        if (shadowOpacity !== lastShadowOpacity) {
+          shadowRef.current.style.opacity = shadowOpacity;
+          lastShadowOpacity = shadowOpacity;
         }
       }
 
-      // Star collection
-      const STAR_RADIUS = 40;
-      let collected = false;
-      const updatedStars = starsRef.current.map((s) => {
-        if (s.collected) return s;
-        const dx = newX - s.worldX;
-        const dy = (newY - CHARACTER_SIZE / 4) - s.worldY; // use upper-body center
-        if (Math.abs(dx) < STAR_RADIUS + CHARACTER_SIZE / 2 && Math.abs(dy) < STAR_RADIUS + CHARACTER_SIZE / 2) {
-          collected = true;
-          return { ...s, collected: true };
+      if (debug) {
+        meter.sample(
+          typeof performance === "undefined" ? 0 : performance.now(),
+          stepsThisFrame,
+        );
+        if (overlayRef.current) {
+          overlayRef.current.textContent =
+            `${meter.fps.toFixed(1)} fps · avg ${meter.averageMs.toFixed(2)} ms · ` +
+            `worst ${meter.worstMs.toFixed(1)} ms · over-budget ${meter.longFrames}/${meter.frames} · ` +
+            `ticks ${meter.steps} · React commits ${commitsRef.current}`;
         }
-        return s;
-      });
-      if (collected) {
-        starsRef.current = updatedStars;
-        setStars([...updatedStars]);
-        scoreRef.current += 10;
-        setScore(scoreRef.current);
       }
-
-      // Squash-stretch
-      let squashStretch = 1;
-      if (!onGround && newVy < -4) squashStretch = 1.25;
-      if (!onGround && newVy > 4) squashStretch = 0.85;
-      if (onGround && justLandedRef.current) squashStretch = 1.3;
-
-      // Tilt when moving
-      const tilt = newVx > 0 ? 8 : newVx < 0 ? -8 : 0;
-
-      // Facing
-      const facingRight = newVx >= 0 ? true : (newVx < 0 ? false : p.facingRight);
-
-      physicsRef.current = {
-        x: newX, y: newY,
-        vx: newVx, vy: newVy,
-        isOnGround: onGround,
-        facingRight,
-        isJumping: p.isJumping,
-        squashStretch,
-        tilt,
-      };
-
-      setPhysicsDisplay({ ...physicsRef.current });
-      animFrameRef.current = requestAnimationFrame(loop);
+      stepsThisFrame = 0;
     };
 
-    animFrameRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animFrameRef.current);
-  }, [CHARACTER_SIZE]);
+    const loop = new FixedTimestepLoop({
+      step: (dt) => {
+        stepsThisFrame++;
+        core.step(dt);
+      },
+      render,
+    });
+    render(0);
+    loop.start();
+    return () => loop.stop();
+  }, [core, characterSize, debug]);
 
-  // Key listeners
+  // ── Discrete events: the only way React hears about the game ─────────────────────
+  useEffect(() => {
+    const offScore = core.on("score", (e) => {
+      if (e.type === "score") setScore(e.score);
+    });
+    const offStar = core.on("starCollected", () => setStarVersion((v) => v + 1));
+    const offComplete = core.on("levelComplete", () => setLevelComplete(true));
+    return () => {
+      offScore();
+      offStar();
+      offComplete();
+    };
+  }, [core]);
+
+  // ── Input ────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      keysRef.current.add(e.key);
+      core.setKey(e.key, true);
       if (e.key === " ") e.preventDefault();
     };
-    const up = (e: KeyboardEvent) => keysRef.current.delete(e.key);
+    const up = (e: KeyboardEvent) => core.setKey(e.key, false);
+    // A held key does not generate a keyup if the window loses focus, so the character
+    // would otherwise keep running while the child is somewhere else entirely.
+    const release = () => core.clearInput();
 
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
+    window.addEventListener("blur", release);
+    document.addEventListener("visibilitychange", release);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", release);
+      document.removeEventListener("visibilitychange", release);
     };
-  }, []);
+  }, [core]);
 
-  // Mobile controls
-  const handleMobileKey = (key: string, down: boolean) => {
-    if (down) keysRef.current.add(key);
-    else keysRef.current.delete(key);
-  };
+  const handleMobileKey = useCallback(
+    (key: string, down: boolean) => core.setKey(key, down),
+    [core],
+  );
 
-  // Camera: scroll so character stays ~40% from left of screen
-  const viewW = window.innerWidth;
-  const rawCameraX = physicsDisplay.x - viewW * CAMERA_LEAD;
-  const cameraX = Math.max(0, Math.min(rawCameraX, WORLD_WIDTH - viewW));
-  // Screen position of character = worldX - cameraX
-  const charScreenX = physicsDisplay.x - cameraX;
+  // ── Viewport ─────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const onResize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      core.setViewport(width, height);
+      // A resize is a discrete event, so re-rendering the world layers here is fine —
+      // it is not in the frame path.
+      setViewport({ width, height });
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [core]);
+
+  // A no-op in practice — the customiser fixes the size before the game mounts — but a
+  // silent mismatch between the drawn size and the collision box would be a nasty bug.
+  useEffect(() => {
+    core.setCharacterSize(characterSize);
+  }, [core, characterSize]);
+
+  // ── Scene change ─────────────────────────────────────────────────────────────────
+  const handleSceneChange = useCallback(
+    (newScene: Scene) => {
+      if (newScene === core.scene) return;
+      // Ignore a second tap while a transition is already in flight; two overlapping
+      // timers would leave the core and React disagreeing about which scene is loaded.
+      if (sceneTimerRef.current !== null) return;
+      setSceneTransition(true);
+      sceneTimerRef.current = window.setTimeout(() => {
+        sceneTimerRef.current = null;
+        core.changeScene(newScene);
+        setScene(newScene);
+        setScore(0);
+        setStarVersion((v) => v + 1);
+        setLevelComplete(false);
+        setSceneTransition(false);
+      }, SCENE_TRANSITION_MS);
+    },
+    [core],
+  );
+
+  useEffect(
+    () => () => {
+      if (sceneTimerRef.current !== null) window.clearTimeout(sceneTimerRef.current);
+      core.dispose();
+    },
+    [core],
+  );
+
+  const groundTop = viewport.height - GROUND_OFFSET;
 
   return (
     <div className="fixed inset-0 overflow-hidden select-none">
-      {/* Scene background — scrolls with camera */}
+      {/* Scene background — the loop scrolls it by writing a transform on bgLayerRef */}
       <div className={sceneTransition ? "animate-scene-transition" : ""}>
-        <SceneBackground scene={scene} cameraX={cameraX} />
+        <SceneBackground scene={scene} layerRef={bgLayerRef} />
       </div>
 
-      {/* Obstacles */}
-      <ObstaclesLayer
-        scene={scene}
-        cameraX={cameraX}
-        groundY={window.innerHeight - GROUND_OFFSET}
-      />
+      {/*
+        World-space prop layer. Obstacles, stars and the finish flag are positioned by
+        their world X inside this one element, and the loop scrolls the element. Before
+        S4.1 each of them took `cameraX` as a prop and re-rendered every frame to cull
+        itself; twenty-one absolutely positioned nodes are cheaper than that was.
+      */}
+      <div
+        ref={propLayerRef}
+        data-testid="prop-layer"
+        className="absolute top-0 left-0 h-full pointer-events-none"
+        style={{ width: WORLD_WIDTH, willChange: "transform" }}
+      >
+        <ObstaclesLayer scene={scene} groundY={groundTop} />
+        <CollectibleStarsLayer stars={core.stars} scene={scene} version={starVersion} />
+        <FinishLine scene={scene} groundY={groundTop} />
+      </div>
 
-      {/* Collectible Stars */}
-      <CollectibleStarsLayer
-        stars={stars}
-        cameraX={cameraX}
-        scene={scene}
-      />
-
-      {/* Finish line */}
-      <FinishLine
-        scene={scene}
-        cameraX={cameraX}
-        groundY={window.innerHeight - GROUND_OFFSET}
-      />
-
-      {/* Character */}
-      {(() => {
-        const isMoving = Math.abs(physicsDisplay.vx) > 0.5;
-        const isAirborne = !physicsDisplay.isOnGround;
-        const animClass = isAirborne
-          ? "animate-char-jump"
-          : isMoving
-          ? "animate-char-run"
-          : "animate-char-idle";
-
-        return (
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: charScreenX - CHARACTER_SIZE / 2,
-              top: physicsDisplay.y - CHARACTER_SIZE / 2,
-              width: CHARACTER_SIZE,
-              height: CHARACTER_SIZE,
-              transform: `
-                scaleX(${physicsDisplay.facingRight ? physicsDisplay.squashStretch : -physicsDisplay.squashStretch})
-                scaleY(${1 / Math.max(physicsDisplay.squashStretch, 0.5)})
-                rotate(${physicsDisplay.tilt}deg)
-              `,
-              transition: "transform 0.05s ease-out",
-              transformOrigin: "bottom center",
-            }}
-          >
-            <img
-              src={characterImageUrl}
-              alt="Your character"
-              className={`w-full h-full object-contain object-bottom ${animClass}`}
-              style={{ filter: charFilter }}
-              draggable={false}
-            />
-          </div>
-        );
-      })()}
+      {/*
+        Character. The outer element carries position (written every frame, no CSS
+        transition — a transition on movement would fight the simulation); the inner one
+        carries squash/stretch and lean, where the 50 ms ease is what sells the impact.
+      */}
+      <div
+        ref={charRef}
+        data-testid="character"
+        className="absolute top-0 left-0 pointer-events-none"
+        style={{ width: characterSize, height: characterSize, willChange: "transform" }}
+      >
+        <div
+          ref={charInnerRef}
+          className="w-full h-full"
+          style={{ transformOrigin: "bottom center", transition: "transform 0.05s ease-out" }}
+        >
+          <img
+            ref={charImgRef}
+            src={characterImageUrl}
+            alt="Your character"
+            className={`${CHAR_IMG_CLASS} animate-char-idle`}
+            style={{ filter: charFilter }}
+            draggable={false}
+          />
+        </div>
+      </div>
 
       {/* Ground shadow */}
       <div
-        className="absolute pointer-events-none rounded-full bg-black/20 blur-sm"
-        style={{
-          left: charScreenX - 30,
-          top: window.innerHeight - GROUND_OFFSET + 2,
-          width: 60,
-          height: 12,
-          transform: `scaleX(${physicsDisplay.squashStretch})`,
-          opacity: physicsDisplay.isOnGround ? 0.4 : Math.max(0, 0.4 - Math.abs(physicsDisplay.y - (window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2)) / 400),
-        }}
+        ref={shadowRef}
+        className="absolute top-0 left-0 pointer-events-none rounded-full bg-black/20 blur-sm"
+        style={{ width: 60, height: 12, willChange: "transform, opacity" }}
       />
 
       {/* Scene selector */}
       <SceneSelector currentScene={scene} onSceneChange={handleSceneChange} />
 
-      {/* Score HUD */}
+      {/* Score HUD — updated on the score event, not on frames */}
       <div className="fixed top-4 left-4 z-20 flex items-center gap-2 bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl px-4 py-2 shadow-md">
         <span className="text-xl" style={{ filter: "drop-shadow(0 0 6px #FFE66D)" }}>⭐</span>
-        <span className="font-display text-2xl text-foreground">{Math.round(score / 10)}</span>
+        <span data-testid="score" className="font-display text-2xl text-foreground">
+          {Math.round(score / POINTS_PER_STAR)}
+        </span>
         <span className="font-body text-xs text-muted-foreground">stars</span>
       </div>
 
@@ -408,6 +418,14 @@ export function GameStage({ playerName, characterImageUrl, characterSize = 180, 
         {t.controlsHint}
       </div>
 
+      {/* Frame-time overlay (?debug) — the before/after evidence S4.1 asks for */}
+      {debug && (
+        <div
+          ref={overlayRef}
+          className="fixed top-4 right-4 z-30 font-mono text-[10px] leading-tight text-white bg-black/70 rounded-lg px-2 py-1 pointer-events-none"
+        />
+      )}
+
       {/* Level complete celebration */}
       {levelComplete && (
         <LevelComplete
@@ -415,23 +433,10 @@ export function GameStage({ playerName, characterImageUrl, characterSize = 180, 
           playerName={playerName}
           score={score}
           onContinue={() => {
+            core.resetToStart();
             setLevelComplete(false);
-            finishTriggeredRef.current = false;
-            const groundY = window.innerHeight - GROUND_OFFSET - CHARACTER_SIZE / 2;
-            physicsRef.current = {
-              ...physicsRef.current,
-              x: window.innerWidth * CAMERA_LEAD,
-              y: groundY,
-              vx: 0, vy: 0,
-              isOnGround: true,
-            };
-            setPhysicsDisplay({ ...physicsRef.current });
-            // Reset stars for replay
-            const fresh = generateStars(scene, window.innerHeight - GROUND_OFFSET);
-            starsRef.current = fresh;
-            setStars([...fresh]);
-            scoreRef.current = 0;
             setScore(0);
+            setStarVersion((v) => v + 1);
           }}
         />
       )}

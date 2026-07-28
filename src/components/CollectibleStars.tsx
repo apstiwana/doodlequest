@@ -1,12 +1,12 @@
+import { memo } from "react";
 import { Scene } from "@/types/game";
-import { WORLD_WIDTH } from "./SceneBackground";
+import type { StarState } from "@/game/types";
 
-export interface Star {
-  id: number;
-  worldX: number;  // world-space X
-  worldY: number;  // world-space Y (screen Y)
-  collected: boolean;
-}
+/**
+ * Star *positions and collection* are simulation state and live in `src/game/` from S4.1
+ * onwards (`world.ts` lays them out, `core.ts` collects them). This file draws them.
+ */
+export type Star = StarState;
 
 // Scene-specific star colors
 const STAR_COLORS: Record<Scene, string[]> = {
@@ -17,60 +17,40 @@ const STAR_COLORS: Record<Scene, string[]> = {
   space:      ["#c084fc", "#60efff", "#FFE66D", "#FF69B4"],
 };
 
-// Generate deterministic star positions for each scene
-export function generateStars(scene: Scene, groundY: number): Star[] {
-  // Seed the positions so they're always the same per scene
-  const seeds: number[] = [];
-  for (let i = 0; i < scene.length; i++) seeds.push(scene.charCodeAt(i));
-  const seed = seeds.reduce((a, b) => a + b, 0);
-
-  const stars: Star[] = [];
-  const count = 12;
-  const step = (WORLD_WIDTH - 300) / count;
-
-  for (let i = 0; i < count; i++) {
-    // Pseudo-random but deterministic position within each segment
-    const offset = ((seed * (i + 1) * 137) % 200) - 100;
-    const heightVariant = ((seed * (i + 3) * 97) % 3); // 0,1,2 → ground, mid, high
-    const heights = [
-      groundY - 60,      // just above ground
-      groundY - 140,     // mid-air
-      groundY - 230,     // high
-    ];
-
-    stars.push({
-      id: i,
-      worldX: 200 + step * i + offset,
-      worldY: heights[heightVariant],
-      collected: false,
-    });
-  }
-  return stars;
-}
-
 interface CollectibleStarsProps {
+  /**
+   * The live star array owned by the game core. It is mutated in place, so this component
+   * cannot detect a collection from the array's identity — `version` is what tells it.
+   */
   stars: Star[];
-  cameraX: number;
   scene: Scene;
+  /** Bumped by `GameStage` once per star collected. The only reason this re-renders. */
+  version: number;
 }
 
-export function CollectibleStarsLayer({ stars, cameraX, scene }: CollectibleStarsProps) {
+/**
+ * Draws the twelve uncollected stars in **world** coordinates, inside the layer the loop
+ * scrolls. Memoized and camera-free for the same reason as `ObstaclesLayer`: re-rendering
+ * to cull off-screen stars meant re-rendering every frame.
+ */
+export const CollectibleStarsLayer = memo(function CollectibleStarsLayer({
+  stars,
+  scene,
+}: CollectibleStarsProps) {
   const colors = STAR_COLORS[scene];
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <>
       {stars.map((star) => {
         if (star.collected) return null;
-        const screenX = star.worldX - cameraX;
-        if (screenX < -50 || screenX > window.innerWidth + 50) return null;
 
         const color = colors[star.id % colors.length];
         return (
           <div
             key={star.id}
-            className="absolute"
+            className="absolute pointer-events-none"
             style={{
-              left: screenX - 36,
+              left: star.worldX - 36,
               top: star.worldY - 36,
               width: 72,
               height: 72,
@@ -98,9 +78,9 @@ export function CollectibleStarsLayer({ stars, cameraX, scene }: CollectibleStar
           </div>
         );
       })}
-    </div>
+    </>
   );
-}
+});
 
 /** Collect animation: burst of mini-stars flying outward */
 export function StarCollectBurst({ x, y }: { x: number; y: number }) {

@@ -1,13 +1,16 @@
-import { useEffect, useRef } from "react";
+import { memo, type RefObject } from "react";
 import { Scene } from "@/types/game";
+import { WORLD_HEIGHT, WORLD_WIDTH } from "@/game/world";
 
 interface SceneBackgroundProps {
   scene: Scene;
-  cameraX: number;
+  /**
+   * The scrolling world layer. The game loop writes `transform` on this element directly
+   * every frame; the camera is deliberately *not* a prop, because a prop that changes 60
+   * times a second is what made React reconcile several hundred SVG nodes per frame.
+   */
+  layerRef: RefObject<HTMLDivElement>;
 }
-
-// World is 3x viewport width = 3600px
-export const WORLD_WIDTH = 3600;
 
 // Pre-computed stable decorative data
 const TREE_XS = [80, 220, 380, 520, 680, 820, 980, 1120, 1280, 1420, 1580, 1720, 1880, 2020, 2180, 2320, 2480, 2620, 2780, 2920, 3080, 3220, 3380, 3520];
@@ -589,21 +592,31 @@ const SpaceBg = () => (
   </svg>
 );
 
-// The SVG world height — all backgrounds and physics use this logical height
-export const WORLD_HEIGHT = 700;
-
-export function SceneBackground({ scene, cameraX }: SceneBackgroundProps) {
+/**
+ * The static scenery.
+ *
+ * Memoized on `scene` alone. Before S4.1 this component took `cameraX` as a prop and was
+ * not memoized, so every frame React re-reconciled the whole background — up to 350
+ * `<circle>` elements in the space scene, plus trees, clouds and flowers. That, not "a
+ * re-render", was the actual stutter (ARCHITECTURE.md §2, OBJECTIONS.md "What Survived").
+ * It now renders once per scene change and the loop scrolls it by writing a transform.
+ */
+export const SceneBackground = memo(function SceneBackground({
+  scene,
+  layerRef,
+}: SceneBackgroundProps) {
   return (
     <div className="fixed inset-0 overflow-hidden">
       {/* Scrolling world layer — exactly WORLD_HEIGHT tall, anchored to screen bottom */}
       <div
+        ref={layerRef}
+        data-testid="background-layer"
         style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           width: WORLD_WIDTH,
           height: WORLD_HEIGHT,
-          transform: `translateX(${-cameraX}px)`,
           willChange: "transform",
         }}
       >
@@ -622,4 +635,4 @@ export function SceneBackground({ scene, cameraX }: SceneBackgroundProps) {
       </div>
     </div>
   );
-}
+});

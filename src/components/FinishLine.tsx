@@ -1,12 +1,14 @@
+import { memo } from "react";
 import { Scene } from "@/types/game";
-import { WORLD_WIDTH } from "./SceneBackground";
+import { FINISH_MARGIN } from "@/game/constants";
+import { WORLD_WIDTH } from "@/game/world";
 
-// Finish line sits 80px from the right edge of the world
-const FINISH_X = WORLD_WIDTH - 80;
+// Finish line sits 80px from the right edge of the world. The simulation reads the same
+// constant, so the flag and the trigger cannot drift apart.
+const FINISH_X = WORLD_WIDTH - FINISH_MARGIN;
 
 interface FinishLineProps {
   scene: Scene;
-  cameraX: number;
   groundY: number; // world groundY (top of ground strip)
 }
 
@@ -26,12 +28,11 @@ const SCENE_LABEL: Record<Scene, string> = {
   space:     "🚀 Finish!",
 };
 
-export function FinishLine({ scene, cameraX, groundY }: FinishLineProps) {
-  const screenX = FINISH_X - cameraX;
-
-  // Don't render if off-screen
-  if (screenX > window.innerWidth + 200 || screenX < -200) return null;
-
+/**
+ * Drawn in **world** coordinates inside the layer the loop scrolls — memoized and
+ * camera-free, like the other world layers, so the camera moving does not re-render it.
+ */
+export const FinishLine = memo(function FinishLine({ scene, groundY }: FinishLineProps) {
   const c = FLAG_COLORS[scene];
   const poleHeight = 140;
   const poleTop = groundY - poleHeight;
@@ -39,7 +40,7 @@ export function FinishLine({ scene, cameraX, groundY }: FinishLineProps) {
   return (
     <div
       className="absolute pointer-events-none"
-      style={{ left: screenX - 4, top: 0, width: 220, height: "100%" }}
+      style={{ left: FINISH_X - 4, top: 0, width: 220, height: "100%" }}
     >
       {/* Checkered finish strip on the ground */}
       <div
@@ -107,4 +108,4 @@ export function FinishLine({ scene, cameraX, groundY }: FinishLineProps) {
       </div>
     </div>
   );
-}
+});

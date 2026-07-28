@@ -1,75 +1,11 @@
+import { memo } from "react";
 import { Scene } from "@/types/game";
+import { getObstaclesForScene } from "@/game/world";
 
-export interface Obstacle {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  type: string;
-}
-
-const makeObstacles = (scene: Scene, groundY: number): Obstacle[] => {
-  const configs: { x: number; w: number; h: number; type: string }[] = {
-    forest: [
-      { x: 550,  w: 55, h: 34, type: "log" },
-      { x: 900,  w: 40, h: 38, type: "rock" },
-      { x: 1300, w: 60, h: 32, type: "log" },
-      { x: 1700, w: 45, h: 36, type: "rock" },
-      { x: 2100, w: 55, h: 34, type: "log" },
-      { x: 2550, w: 65, h: 30, type: "stump" },
-      { x: 2950, w: 50, h: 38, type: "rock" },
-      { x: 3300, w: 55, h: 34, type: "log" },
-    ],
-    underwater: [
-      { x: 500,  w: 50, h: 36, type: "coral" },
-      { x: 850,  w: 40, h: 34, type: "shell" },
-      { x: 1250, w: 55, h: 36, type: "coral" },
-      { x: 1650, w: 45, h: 34, type: "rock" },
-      { x: 2050, w: 55, h: 36, type: "coral" },
-      { x: 2450, w: 50, h: 34, type: "shell" },
-      { x: 2850, w: 60, h: 36, type: "coral" },
-      { x: 3250, w: 50, h: 34, type: "rock" },
-    ],
-    city: [
-      { x: 480,  w: 50, h: 34, type: "barrel" },
-      { x: 880,  w: 60, h: 32, type: "crate" },
-      { x: 1280, w: 45, h: 38, type: "barrel" },
-      { x: 1680, w: 60, h: 34, type: "crate" },
-      { x: 2080, w: 50, h: 32, type: "barrel" },
-      { x: 2480, w: 65, h: 30, type: "crate" },
-      { x: 2880, w: 50, h: 38, type: "barrel" },
-      { x: 3280, w: 60, h: 34, type: "crate" },
-    ],
-    moon: [
-      { x: 520,  w: 55, h: 32, type: "moonrock" },
-      { x: 920,  w: 45, h: 36, type: "crater" },
-      { x: 1320, w: 60, h: 32, type: "moonrock" },
-      { x: 1720, w: 50, h: 36, type: "crater" },
-      { x: 2120, w: 55, h: 34, type: "moonrock" },
-      { x: 2520, w: 65, h: 32, type: "crater" },
-      { x: 2920, w: 55, h: 36, type: "moonrock" },
-      { x: 3320, w: 50, h: 34, type: "crater" },
-    ],
-    space: [
-      { x: 500,  w: 50, h: 36, type: "asteroid" },
-      { x: 900,  w: 60, h: 34, type: "crate" },
-      { x: 1300, w: 50, h: 38, type: "asteroid" },
-      { x: 1700, w: 60, h: 34, type: "crate" },
-      { x: 2100, w: 55, h: 36, type: "asteroid" },
-      { x: 2500, w: 65, h: 32, type: "crate" },
-      { x: 2900, w: 55, h: 38, type: "asteroid" },
-      { x: 3300, w: 60, h: 34, type: "crate" },
-    ],
-  }[scene];
-
-  return configs.map(({ x, w, h, type }) => ({
-    x,
-    y: groundY - h / 2,  // center Y so bottom edge sits on groundY
-    width: w,
-    height: h,
-    type,
-  }));
-};
+/**
+ * The obstacle *data* moved to `src/game/world.ts` in S4.1 — the simulation needs it and
+ * the simulation may not import React. This file draws them and nothing else.
+ */
 
 function ObstacleSvg({ type, width, height }: { type: string; width: number; height: number }) {
   const w = width;
@@ -245,38 +181,37 @@ function ObstacleSvg({ type, width, height }: { type: string; width: number; hei
 
 interface ObstaclesLayerProps {
   scene: Scene;
-  cameraX: number;
   groundY: number;
 }
 
-export function getObstaclesForScene(scene: Scene, groundY: number): Obstacle[] {
-  return makeObstacles(scene, groundY);
-}
-
-export function ObstaclesLayer({ scene, cameraX, groundY }: ObstaclesLayerProps) {
-  const obstacles = makeObstacles(scene, groundY);
+/**
+ * Draws the eight obstacles for a scene in **world** coordinates, inside the layer the
+ * loop scrolls. There is no `cameraX` prop and no viewport culling any more: culling
+ * required re-rendering on every camera change, which is exactly what S4.1 removes, and
+ * eight absolutely-positioned divs cost less than the reconciliation did.
+ */
+export const ObstaclesLayer = memo(function ObstaclesLayer({
+  scene,
+  groundY,
+}: ObstaclesLayerProps) {
+  const obstacles = getObstaclesForScene(scene, groundY);
 
   return (
     <>
-      {obstacles.map((obs, i) => {
-        const screenX = obs.x - cameraX - obs.width / 2;
-        const screenY = obs.y - obs.height / 2;
-        if (screenX > window.innerWidth + 100 || screenX < -obs.width - 100) return null;
-        return (
-          <div
-            key={`${scene}-${i}`}
-            className="absolute pointer-events-none"
-            style={{
-              left: screenX,
-              top: screenY,
-              width: obs.width,
-              height: obs.height,
-            }}
-          >
-            <ObstacleSvg type={obs.type} width={obs.width} height={obs.height} />
-          </div>
-        );
-      })}
+      {obstacles.map((obs, i) => (
+        <div
+          key={`${scene}-${i}`}
+          className="absolute pointer-events-none"
+          style={{
+            left: obs.x - obs.width / 2,
+            top: obs.y - obs.height / 2,
+            width: obs.width,
+            height: obs.height,
+          }}
+        >
+          <ObstacleSvg type={obs.type} width={obs.width} height={obs.height} />
+        </div>
+      ))}
     </>
   );
-}
+});

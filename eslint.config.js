@@ -23,4 +23,40 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    // ARCHITECTURE.md §14 rule 1: nothing in the game core may import React.
+    //
+    // This is the single rule that stops the defect S4.1 fixed from coming back. The
+    // simulation has to stay runnable — and unit-testable — with no React and no DOM, and
+    // "we'll notice in review" is not a mechanism. It is an error, not a warning, so it
+    // fails CI. `src/test/game-core-has-no-react.test.ts` asserts the same thing from the
+    // test suite, because `npm run lint` currently has pre-existing failures and a rule
+    // buried in a failing command is easy to stop trusting.
+    files: ["src/game/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "react",
+                "react/*",
+                "react-dom",
+                "react-dom/*",
+                "react-*",
+                "*.tsx",
+                "@/components/*",
+                "@/context/*",
+                "@/hooks/*",
+                "@/pages/*",
+              ],
+              message:
+                "src/game/ is the React-free game core (ARCHITECTURE.md §14 rule 1). Move UI-facing code to src/components/ and talk to the core through its event emitter.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

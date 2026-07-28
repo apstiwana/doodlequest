@@ -6,6 +6,12 @@ export interface GameState {
   currentScene: Scene;
 }
 
+/**
+ * @deprecated Superseded by `CharacterState` in `src/game/types.ts` (S4.1). Velocities
+ * there are per second, not per frame. Nothing imports this any more — it is left in place
+ * rather than removed because deleting is Angad's call, not an agent's; see the S4.1
+ * change note.
+ */
 export interface CharacterPhysics {
   x: number;
   y: number;
