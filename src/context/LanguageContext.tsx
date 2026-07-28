@@ -10,7 +10,7 @@ export const translations = {
     nameWillCall: "Your drawing will call you by name!",
     namePlaceholder: "Type your name here...",
     startAdventure: "Start Adventure!",
-    bottomHint: "🖼️ Upload a drawing • 🌍 Explore 5 worlds • 💬 Chat with your character",
+    bottomHint: "🖼️ Upload a drawing • 🌍 Explore 5 worlds",
     // Addressed to the adult, not the child — see S9.1. Keep it plain and factual;
     // it is a link a parent may choose to find, not a prompt aimed at a player.
     tipForGrownUps: "For grown-ups: leave a tip",
@@ -30,12 +30,10 @@ export const translations = {
     letsGo: "Let's Go!",
     errorNotImage: "Please upload an image file! 🖼️",
     errorTooBig: "Image is too big! Please use a smaller one. 📏",
+    errorCouldNotRead: "We couldn't open that picture. Try another one! 🖼️",
 
     // GameStage
-    talkToCharacter: "💬 Talk to your character!",
-    saySomething: "Say something...",
-    send: "Send",
-    controlsHint: "← → Move • ↑ / Space Jump • T Chat",
+    controlsHint: "← → Move • ↑ / Space Jump",
 
     // SceneSelector scene labels
     sceneForest: "Forest",
@@ -62,7 +60,7 @@ export const translations = {
     nameWillCall: "Je tekening noemt je bij naam!",
     namePlaceholder: "Typ hier jouw naam...",
     startAdventure: "Begin het avontuur!",
-    bottomHint: "🖼️ Upload een tekening • 🌍 Verken 5 werelden • 💬 Chat met je personage",
+    bottomHint: "🖼️ Upload een tekening • 🌍 Verken 5 werelden",
     tipForGrownUps: "Voor ouders: laat een fooi achter",
 
     // DrawingUpload
@@ -80,12 +78,10 @@ export const translations = {
     letsGo: "Let's Go!",
     errorNotImage: "Upload een afbeeldingsbestand! 🖼️",
     errorTooBig: "De afbeelding is te groot! Gebruik een kleinere. 📏",
+    errorCouldNotRead: "We konden die tekening niet openen. Probeer een andere! 🖼️",
 
     // GameStage
-    talkToCharacter: "💬 Praat met jouw personage!",
-    saySomething: "Zeg iets...",
-    send: "Sturen",
-    controlsHint: "← → Bewegen • ↑ / Spatie Springen • T Chat",
+    controlsHint: "← → Bewegen • ↑ / Spatie Springen",
 
     // SceneSelector scene labels
     sceneForest: "Woud",

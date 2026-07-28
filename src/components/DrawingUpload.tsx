@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Upload, RefreshCw, Check } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -17,7 +16,16 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const processImage = async (file: File) => {
+  /**
+   * Reads the chosen drawing into a data URL for preview and play.
+   *
+   * Background removal and the AI-written description used to happen on a Lovable AI
+   * edge function; that endpoint is retired with the Supabase project (S0.2). Reading
+   * the file locally was already the fallback path when the call failed, so it is now
+   * simply the only path — no network, no API spend, and the image never leaves the
+   * device. Cutting the drawing out of the paper is the extraction pipeline's job (E3).
+   */
+  const processImage = (file: File) => {
     if (!file.type.startsWith("image/")) {
       setError(t.errorNotImage);
       return;
@@ -30,42 +38,19 @@ export function DrawingUpload({ playerName, onComplete }: DrawingUploadProps) {
     setError(null);
     setIsProcessing(true);
 
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      const response = await fetch(`${supabaseUrl}/functions/v1/remove-background`, {
-        method: "POST",
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Processing failed");
-      }
-
-      const data = await response.json();
-      setPreviewUrl(data.imageData);
-      setDescription(data.description || "a wonderful drawing");
-    } catch (err) {
-      console.error(err);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        setPreviewUrl(dataUrl);
-        setDescription("a wonderful drawing come to life");
-      };
-      reader.readAsDataURL(file);
-    } finally {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewUrl(e.target?.result as string);
+      setDescription("");
       setIsProcessing(false);
-    }
+    };
+    reader.onerror = () => {
+      // Warm message for the child, detail only to the console.
+      console.error("Could not read the selected image:", reader.error);
+      setError(t.errorCouldNotRead);
+      setIsProcessing(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleDrop = (e: React.DragEvent) => {
