@@ -30,7 +30,7 @@ touch devices.
 
 - [Vite](https://vitejs.dev/) + React 18 + TypeScript
 - Tailwind CSS with [shadcn/ui](https://ui.shadcn.com/) components
-- React Router, TanStack Query
+- TanStack Query (no router — the game is a single screen)
 - Supabase (client SDK plus edge functions)
 - Vitest for unit tests, Playwright for end-to-end tests
 
@@ -85,7 +85,7 @@ been written. Once it does, and once browsers are installed with
 index.html                 App shell and page metadata
 src/
   main.tsx                 Entry point
-  App.tsx                  Providers and routing
+  App.tsx                  Providers, plus the one path check the app still needs
   pages/                   Index (the game flow) and NotFound
   components/              Game screens and pieces
     ui/                    shadcn/ui primitives — generated, avoid hand-editing
