@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment files — never commit real values.
+# .env.example is the tracked template and is deliberately excluded from this.
+.env
+.env.*
+!.env.example
+
+# Playwright test artifacts
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
