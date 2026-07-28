@@ -6,6 +6,13 @@ interface WelcomeScreenProps {
   onStart: (name: string) => void;
 }
 
+/**
+ * Tip jar for adults. This lives on the home page only (S9.1) — it was moved off
+ * the level-complete screen (S0.1) because that put a payment link under a child's
+ * finger at the exact moment they were tapping "Play Again".
+ */
+const TIP_URL = "https://buy.stripe.com/bJecN61zY4Bw6wddRC0RG00";
+
 const FLAG: Record<Language, string> = { en: "🇬🇧", nl: "🇧🇪" };
 const LANG_LABEL: Record<Language, string> = { en: "EN", nl: "NL" };
 const OTHER_LANG: Record<Language, Language> = { en: "nl", nl: "en" };
@@ -54,6 +61,22 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         <span className="text-base">{FLAG[OTHER_LANG[language]]}</span>
         <span className="text-xs text-muted-foreground">{LANG_LABEL[OTHER_LANG[language]]}</span>
       </button>
+
+      {/*
+        Tip link — top right, sitting below the language toggle rather than beside it.
+        Kept deliberately quiet (small, muted, no button chrome): it is addressed to a
+        parent, and must not read as a second call to action next to "Start Adventure".
+        The 4.5rem offset clears the language toggle (top-4 + ~40px tall) by ~16px so
+        the two cannot be mis-tapped for one another at tablet widths.
+      */}
+      <a
+        href={TIP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed top-[4.5rem] right-4 z-30 px-2 py-1 font-body text-xs text-muted-foreground/70 hover:text-muted-foreground underline decoration-dotted underline-offset-4 transition-colors"
+      >
+        {t.tipForGrownUps}
+      </a>
 
       <div className="relative z-10 w-full max-w-md text-center space-y-8">
         {/* Logo area */}

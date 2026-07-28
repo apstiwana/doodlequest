@@ -11,6 +11,9 @@ export const translations = {
     namePlaceholder: "Type your name here...",
     startAdventure: "Start Adventure!",
     bottomHint: "🖼️ Upload a drawing • 🌍 Explore 5 worlds • 💬 Chat with your character",
+    // Addressed to the adult, not the child — see S9.1. Keep it plain and factual;
+    // it is a link a parent may choose to find, not a prompt aimed at a player.
+    tipForGrownUps: "For grown-ups: leave a tip",
 
     // DrawingUpload
     uploadTitle: "Upload Your Drawing!",
@@ -60,6 +63,7 @@ export const translations = {
     namePlaceholder: "Typ hier jouw naam...",
     startAdventure: "Begin het avontuur!",
     bottomHint: "🖼️ Upload een tekening • 🌍 Verken 5 werelden • 💬 Chat met je personage",
+    tipForGrownUps: "Voor ouders: laat een fooi achter",
 
     // DrawingUpload
     uploadTitle: "Upload jouw tekening!",
